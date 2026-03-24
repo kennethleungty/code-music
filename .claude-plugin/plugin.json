@@ -1,0 +1,12 @@
+{
+  "name": "claude-music",
+  "description": "Background music for your Claude Code sessions — lofi, jazz, classical, ambient and more",
+  "version": "0.1.0",
+  "author": {
+    "name": "Kenneth Leung"
+  },
+  "homepage": "https://github.com/kennethleungty/claude-music",
+  "repository": "https://github.com/kennethleungty/claude-music",
+  "license": "MIT",
+  "keywords": ["music", "lofi", "ambient", "coding-music", "background-music"]
+}
