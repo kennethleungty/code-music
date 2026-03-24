@@ -1,109 +1,92 @@
-# claude-music
+# Music for Claude Code
 
-Background music for your Claude Code sessions — lofi, jazz, classical, ambient and more.
+Background music that plays while you code. Lofi, jazz, classical, ambient — streaming live from internet radio, right in your terminal.
 
-Music starts automatically when you open a Claude Code session and stops when you close it. A DJ agent picks the right genre based on what you're working on.
+Just install the plugin and music starts playing. No setup, no accounts, no ads.
 
-## Installation
+## Quick Start
 
-### Requirements
+**1. Install the plugin**
 
-You need a command-line audio player. **mpv** is recommended:
-
-```bash
-# macOS
-brew install mpv
-
-# Ubuntu/Debian
-sudo apt install mpv
-
-# Arch
-sudo pacman -S mpv
+In Claude Code:
+```
+/plugin install music
 ```
 
-Other supported players (auto-detected): `ffplay` (FFmpeg), `afplay` (macOS built-in), `play` (SoX).
+**2. That's it.**
 
-### Install the Plugin
+Music starts automatically when your next session opens. Lofi beats by default.
 
-```bash
-# From the official marketplace (when available)
-/plugin install claude-music
+> Don't have an audio player installed? No worries — the plugin detects this and walks you through installing one automatically.
 
-# Or load locally for development
-claude --plugin-dir /path/to/claude-music
-```
+## Controls
 
-## Features
+Type these in Claude Code:
 
-### Auto-Play on Session Start
-
-Music starts playing automatically when you open a Claude Code session. Set `autoplay` to `false` in preferences to disable.
-
-### DJ Agent
-
-The DJ agent analyzes what you're working on and picks the right genre:
-
-- **Debugging** → lofi (calm focus)
-- **New features** → jazz (energized flow)
-- **Code review** → classical (contemplative)
-- **Brainstorming** → ambient (creative space)
-
-Claude invokes the DJ automatically when your work context shifts, or you can ask: "ask the DJ to pick something."
-
-### Now Playing
-
-Use `/music:music-status` to see what's currently playing, including track metadata when available (mpv with socat required for metadata).
-
-## Commands
-
-| Command | Description |
+| Command | What it does |
 |---------|-------------|
-| `/music:play [genre]` | Start playback (default: your preferred genre) |
-| `/music:stop` | Stop playback |
-| `/music:pause` | Pause playback |
-| `/music:resume` | Resume paused playback |
-| `/music:next` | Skip to a different station in the same genre |
-| `/music:set-genre <genre>` | Change genre and restart |
-| `/music:music-status` | Show what's playing |
+| `/music:play` | Start playing music |
+| `/music:play jazz` | Start playing a specific genre |
+| `/music:stop` | Stop the music |
+| `/music:pause` | Pause |
+| `/music:resume` | Resume |
+| `/music:next` | Switch to a different station (same genre) |
+| `/music:set-genre ambient` | Change your genre |
+| `/music:volume 50` | Set volume (0-100) |
+| `/music:music-status` | See what's playing right now |
 
 ## Genres
 
-| Genre | Mood | Stations |
-|-------|------|----------|
-| **lofi** | Chill beats, focused coding | SomaFM Groove Salad, Lush, Nightwave Plaza |
-| **jazz** | Smooth, energized | SomaFM Fluid, Bossa Beyond, FIP Jazz, WDCB |
-| **classical** | Deep concentration | All Classical Portland, WWFM, France Musique |
-| **ambient** | Creative, spacious | SomaFM Drone Zone, Deep Space One, Space Station |
+| Genre | Vibe | Great for |
+|-------|------|-----------|
+| **lofi** | Chill beats, relaxed | Focused coding, debugging |
+| **jazz** | Smooth, upbeat | Building features, writing code |
+| **classical** | Deep, contemplative | Code review, reading, research |
+| **ambient** | Spacious, atmospheric | Brainstorming, design, creative work |
 
-## Configuration
+Each genre has multiple radio stations. Use `/music:next` to cycle through them.
 
-Preferences are stored in `${CLAUDE_PLUGIN_DATA}/preferences.json` and persist across sessions:
+## Your AI DJ
 
-```json
-{
-  "genre": "lofi",
-  "volume": "70",
-  "autoplay": "true",
-  "player": "auto"
-}
-```
+The plugin includes a DJ agent that reads what you're working on and picks the right music automatically. Debugging? It switches to lofi. Starting a code review? Classical kicks in.
 
-- **genre**: Default genre (lofi, jazz, classical, ambient)
-- **volume**: 0-100
-- **autoplay**: Start music automatically on session start
-- **player**: Audio player (auto, mpv, ffplay, afplay, play)
+You can also ask anytime: *"Hey, ask the DJ to pick something for this task."*
 
-## Offline Fallback
+## Now Playing
 
-Place MP3 files in the `music/` directory as offline fallbacks. Name them `<genre>-fallback.mp3` (e.g., `lofi-fallback.mp3`). When streams are unavailable, the plugin plays these files on loop.
+The status line at the bottom of your terminal shows what's currently playing — genre, station name, and track title when available. Always visible, never scrolls away.
 
-## How It Works
+## Preferences
 
-1. **SessionStart hook** detects your audio player, loads preferences, and auto-plays music
-2. **Skills** provide slash commands that call `scripts/music-controller.sh`
-3. **music-controller.sh** is the single source of truth for all audio operations
-4. **SessionEnd hook** stops playback when you close the session
-5. **DJ agent** (haiku model) reads your coding context and picks the right genre
+Your settings are saved automatically and persist across sessions:
+
+- **Genre** — your preferred default (changed via `/music:set-genre`)
+- **Volume** — 0 to 100 (changed via `/music:volume`)
+- **Autoplay** — music starts automatically when a session opens (on by default)
+
+## Works Everywhere
+
+| Platform | How it plays |
+|----------|-------------|
+| **macOS** | mpv (via Homebrew) or built-in afplay |
+| **Linux** | mpv (via apt, dnf, pacman, etc.) |
+| **WSL2** | mpv inside WSL (with WSLg audio) or Windows-side mpv.exe |
+| **Windows** | mpv (via winget, scoop, or chocolatey) |
+
+The plugin auto-detects your platform and available audio players. If nothing is installed, it offers to set one up for you.
+
+## Offline Mode
+
+No internet? Drop MP3 files into the `music/` folder inside the plugin directory. Name them by genre — `lofi-fallback.mp3`, `jazz-fallback.mp3`, etc. The plugin plays these on loop when radio streams aren't reachable.
+
+## Radio Stations
+
+All streams are free, ad-free, and require no account:
+
+- **Lofi** — SomaFM Groove Salad, Groove Salad Classic, Lush, Nightwave Plaza
+- **Jazz** — SomaFM Fluid, Bossa Beyond, FIP Jazz, WDCB Jazz
+- **Classical** — All Classical Portland, WWFM, France Musique, Iowa Public Radio
+- **Ambient** — SomaFM Drone Zone, Deep Space One, Space Station Soma, Ambient Sleeping Pill
 
 ## License
 
