@@ -540,9 +540,6 @@ do_play() {
     start_watchdog "$pid"
     save_state "playing" "$genre" "$url" "$player" "$pid"
 
-    # Update preferred genre
-    json_set "$PREFS_FILE" "genre" "$genre"
-
     echo "{\"status\": \"playing\", \"genre\": \"$genre\", \"station\": \"$stream_name\", \"source\": \"$source\", \"player\": \"$player\"}"
 }
 

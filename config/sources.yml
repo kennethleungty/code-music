@@ -1,13 +1,11 @@
 lofi:
   streams:
-    - name: SomaFM - Groove Salad
-      url: http://ice2.somafm.com/groovesalad-128-mp3
-    - name: SomaFM - Groove Salad Classic
-      url: http://ice2.somafm.com/gsclassic-128-mp3
+    - name: Nightwave Plaza
+      url: http://radio.plaza.one/mp3
     - name: SomaFM - Lush
       url: http://ice2.somafm.com/lush-128-mp3
-    - name: SomaFM - Beat Blender
-      url: http://ice2.somafm.com/beatblender-128-mp3
+    - name: SomaFM - Vaporwaves
+      url: http://ice2.somafm.com/vaporwaves-128-mp3
   files: []
 
 jazz:
@@ -16,8 +14,6 @@ jazz:
       url: http://ice4.somafm.com/fluid-128-mp3
     - name: SomaFM - Bossa Beyond
       url: http://ice4.somafm.com/bossa-128-mp3
-    - name: SomaFM - Sonic Universe
-      url: http://ice2.somafm.com/sonicuniverse-128-mp3
     - name: FIP Jazz
       url: http://direct.fipradio.fr/live/fip-webradio2.mp3
     - name: WDCB Jazz
