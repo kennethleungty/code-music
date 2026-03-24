@@ -1,7 +1,7 @@
 ---
 name: dj
 description: Analyzes the current coding task and picks appropriate background music. Use proactively when the user starts a new type of work, switches tasks, or when the coding mood should shift.
-model: haiku
+model: sonnet
 tools: Bash
 maxTurns: 3
 ---

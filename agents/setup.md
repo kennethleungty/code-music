@@ -1,7 +1,7 @@
 ---
 name: setup
 description: Automatically detects the platform and installs a compatible audio player for music playback. Use proactively when the session-start hook reports no audio player available.
-model: haiku
+model: sonnet
 tools: Bash
 maxTurns: 15
 ---
