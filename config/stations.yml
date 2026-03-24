@@ -1,0 +1,47 @@
+lofi:
+  streams:
+    - name: SomaFM - Groove Salad
+      url: https://ice2.somafm.com/groovesalad-128-mp3
+    - name: SomaFM - Groove Salad Classic
+      url: https://ice4.somafm.com/gsclassic-128-mp3
+    - name: SomaFM - Lush
+      url: https://ice2.somafm.com/lush-128-mp3
+    - name: Nightwave Plaza
+      url: http://radio.plaza.one/mp3
+  files: []
+
+jazz:
+  streams:
+    - name: SomaFM - Fluid
+      url: https://ice4.somafm.com/fluid-128-mp3
+    - name: SomaFM - Bossa Beyond
+      url: https://ice4.somafm.com/bossa-128-mp3
+    - name: FIP Jazz
+      url: http://direct.fipradio.fr/live/fip-webradio2.mp3
+    - name: WDCB Jazz
+      url: http://wdcb-ice.streamguys.org:80/wdcb128
+  files: []
+
+classical:
+  streams:
+    - name: All Classical Portland
+      url: http://allclassical-ice.streamguys.com/ac96kmp3
+    - name: WWFM The Classical Network
+      url: http://wwfm.streamguys1.com/live
+    - name: France Musique
+      url: http://direct.francemusique.fr/live/francemusique-midfi.mp3
+    - name: IPR Classical
+      url: http://classical-stream.iowapublicradio.org/Classical.mp3
+  files: []
+
+ambient:
+  streams:
+    - name: SomaFM - Drone Zone
+      url: https://ice2.somafm.com/dronezone-128-mp3
+    - name: SomaFM - Deep Space One
+      url: https://ice4.somafm.com/deepspaceone-128-mp3
+    - name: SomaFM - Space Station Soma
+      url: https://ice4.somafm.com/spacestation-128-mp3
+    - name: Ambient Sleeping Pill
+      url: http://radio.stereoscenic.com/asp-s
+  files: []

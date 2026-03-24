@@ -17,7 +17,7 @@ if [ ! -f "$PREFS_FILE" ]; then
 {
   "genre": "lofi",
   "volume": "70",
-  "autoplay": "true",
+  "autoplay": "false",
   "player": "auto"
 }
 EOF
@@ -54,11 +54,11 @@ if [ "$MUSIC_STATUS" = "playing" ]; then
     [ -n "$STATION" ] && CONTEXT="$CONTEXT ($STATION)"
     CONTEXT="$CONTEXT."
 elif [ "$MUSIC_STATUS" = "ready" ]; then
-    CONTEXT="$CONTEXT Music is ready but autoplay is off. Use /music:play to start."
+    CONTEXT="$CONTEXT Music is ready but autoplay is off. Use /claude-music:play to start."
 elif [ "$MUSIC_STATUS" = "no_player" ]; then
     CONTEXT="$CONTEXT No audio player found. You MUST invoke the claude-music:setup agent to automatically detect the platform and install mpv (or ffmpeg as fallback). Do this before anything else."
 fi
-CONTEXT="$CONTEXT Controls: /music:play, /music:stop, /music:pause, /music:resume, /music:next, /music:set-genre, /music:music-status"
+CONTEXT="$CONTEXT Controls: /claude-music:play, /claude-music:stop, /claude-music:pause, /claude-music:resume, /claude-music:next, /claude-music:set-genre, /claude-music:music-status"
 
 # Escape for JSON
 escape_for_json() {

@@ -12,7 +12,7 @@ PREFS_FILE="$DATA_DIR/preferences.json"
 STATE_FILE="$DATA_DIR/state.json"
 PID_FILE="$DATA_DIR/player.pid"
 MPV_SOCK="$DATA_DIR/mpv.sock"
-STREAMS_FILE="$PLUGIN_ROOT/scripts/streams.json"
+STATIONS_FILE="$PLUGIN_ROOT/config/stations.yml"
 MUSIC_DIR="$PLUGIN_ROOT/music"
 
 # ============================================================================
@@ -45,6 +45,63 @@ with open('$file','w') as f: json.dump(d,f,indent=2)
     else
         sed -i "s/\"$key\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"$key\": \"$value\"/" "$file"
     fi
+}
+
+# ============================================================================
+# YAML query helper — parses stations.yml via Python3
+# ============================================================================
+
+yaml_query() {
+    local query="$1"
+    if ! command -v python3 &>/dev/null; then
+        echo ""
+        return 1
+    fi
+    python3 -c "
+import sys
+try:
+    import yaml
+    with open('$STATIONS_FILE') as f:
+        data = yaml.safe_load(f)
+except ImportError:
+    with open('$STATIONS_FILE') as f:
+        text = f.read()
+    # Minimal YAML subset parser for our simple structure
+    data = {}
+    current_genre = None
+    current_section = None
+    current_item = {}
+    for line in text.split('\n'):
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#'):
+            continue
+        indent = len(line) - len(line.lstrip())
+        if indent == 0 and stripped.endswith(':'):
+            if current_item and current_genre and current_section:
+                data[current_genre][current_section].append(current_item)
+                current_item = {}
+            current_genre = stripped[:-1]
+            data[current_genre] = {'streams': [], 'files': []}
+            current_section = None
+        elif indent == 2 and stripped in ('streams: []', 'files: []'):
+            pass
+        elif indent == 2 and stripped in ('streams:', 'files:'):
+            if current_item and current_genre and current_section:
+                data[current_genre][current_section].append(current_item)
+                current_item = {}
+            current_section = stripped[:-1]
+        elif indent == 4 and stripped.startswith('- name:'):
+            if current_item and current_genre and current_section:
+                data[current_genre][current_section].append(current_item)
+            current_item = {'name': stripped.split(':', 1)[1].strip()}
+        elif indent == 6 and stripped.startswith('url:'):
+            current_item['url'] = stripped.split(': ', 1)[1].strip()
+        elif indent == 6 and stripped.startswith('path:'):
+            current_item['path'] = stripped.split(':', 1)[1].strip()
+    if current_item and current_genre and current_section:
+        data[current_genre][current_section].append(current_item)
+$query
+" 2>/dev/null
 }
 
 # ============================================================================
@@ -183,71 +240,63 @@ EOF
 
 get_stream_url() {
     local genre="${1:-lofi}"
-    if [ ! -f "$STREAMS_FILE" ]; then
+    if [ ! -f "$STATIONS_FILE" ]; then
         echo ""
         return 1
     fi
-
-    if command -v jq &>/dev/null; then
-        # Pick a random URL from the genre array
-        local count
-        count=$(jq ".[\"$genre\"] | length" "$STREAMS_FILE" 2>/dev/null || echo 0)
-        if [ "$count" -gt 0 ]; then
-            local idx=$((RANDOM % count))
-            jq -r ".[\"$genre\"][$idx].url" "$STREAMS_FILE" 2>/dev/null
-            return 0
-        fi
-    elif command -v python3 &>/dev/null; then
-        python3 -c "
-import json,random
-with open('$STREAMS_FILE') as f: d=json.load(f)
-streams=d.get('$genre',[])
-if streams: print(random.choice(streams)['url'])
-else: exit(1)
-" 2>/dev/null
-        return $?
-    fi
-
-    echo ""
-    return 1
+    yaml_query "
+import random
+streams = data.get('$genre', {}).get('streams', [])
+if streams:
+    print(random.choice(streams)['url'])
+else:
+    sys.exit(1)
+"
+    return $?
 }
 
 get_stream_name() {
     local genre="${1:-lofi}" url="$2"
-    if command -v jq &>/dev/null; then
-        jq -r ".[\"$genre\"][] | select(.url==\"$url\") | .name" "$STREAMS_FILE" 2>/dev/null || echo "Unknown Station"
-    elif command -v python3 &>/dev/null; then
-        python3 -c "
-import json
-with open('$STREAMS_FILE') as f: d=json.load(f)
-for s in d.get('$genre',[]):
-    if s['url']=='$url': print(s['name']); break
-else: print('Unknown Station')
-" 2>/dev/null
-    else
+    if [ ! -f "$STATIONS_FILE" ]; then
         echo "Unknown Station"
+        return
     fi
+    local name
+    name=$(yaml_query "
+for s in data.get('$genre', {}).get('streams', []):
+    if s['url'] == '$url':
+        print(s['name'])
+        break
+else:
+    print('Unknown Station')
+")
+    echo "${name:-Unknown Station}"
 }
 
 get_fallback_file() {
     local genre="${1:-lofi}"
-    local file="$MUSIC_DIR/${genre}-fallback.mp3"
-    if [ -f "$file" ]; then
-        echo "$file"
-        return 0
-    fi
-    # Try any mp3 matching the genre
-    local found
-    found=$(find "$MUSIC_DIR" -name "${genre}*" -type f 2>/dev/null | head -1)
-    if [ -n "$found" ]; then
-        echo "$found"
-        return 0
-    fi
-    # Default to any available mp3
-    found=$(find "$MUSIC_DIR" -name "*.mp3" -type f 2>/dev/null | head -1)
-    if [ -n "$found" ]; then
-        echo "$found"
-        return 0
+    if [ -f "$STATIONS_FILE" ]; then
+        local file_path
+        file_path=$(yaml_query "
+import random
+files = data.get('$genre', {}).get('files', [])
+if files:
+    entry = random.choice(files)
+    path = entry.get('path', '')
+    print(path)
+else:
+    sys.exit(1)
+")
+        if [ $? -eq 0 ] && [ -n "$file_path" ]; then
+            # Resolve relative paths against MUSIC_DIR
+            if [[ "$file_path" != /* ]]; then
+                file_path="$MUSIC_DIR/$file_path"
+            fi
+            if [ -f "$file_path" ]; then
+                echo "$file_path"
+                return 0
+            fi
+        fi
     fi
     echo ""
     return 1
@@ -517,10 +566,11 @@ EOF
 }
 
 do_list_genres() {
-    if command -v jq &>/dev/null; then
-        jq -r 'keys[]' "$STREAMS_FILE" 2>/dev/null
-    elif command -v python3 &>/dev/null; then
-        python3 -c "import json; [print(k) for k in json.load(open('$STREAMS_FILE')).keys()]" 2>/dev/null
+    if [ -f "$STATIONS_FILE" ]; then
+        yaml_query "
+for genre in data:
+    print(genre)
+"
     else
         echo "lofi"
         echo "jazz"

@@ -11,7 +11,7 @@ CONTROLLER="$PLUGIN_ROOT/scripts/music-controller.sh"
 # Stop playback if running
 "$CONTROLLER" stop >/dev/null 2>&1 || true
 
-# Output minimal JSON response
-printf '{\n  "hookSpecificOutput": {\n    "additionalContext": "Music stopped. Session ended."\n  }\n}\n'
+# SessionEnd hooks don't support hookSpecificOutput — output empty JSON
+printf '{}\n'
 
 exit 0

@@ -10,12 +10,12 @@ Just install the plugin and music starts playing. No setup, no accounts, no ads.
 
 In Claude Code:
 ```
-/plugin install music
+/plugin install claude-music
 ```
 
 **2. That's it.**
 
-Music starts automatically when your next session opens. Lofi beats by default.
+Use `/claude-music:play` to start playing. Lofi beats by default.
 
 > Don't have an audio player installed? No worries — the plugin detects this and walks you through installing one automatically.
 
@@ -25,15 +25,16 @@ Type these in Claude Code:
 
 | Command | What it does |
 |---------|-------------|
-| `/music:play` | Start playing music |
-| `/music:play jazz` | Start playing a specific genre |
-| `/music:stop` | Stop the music |
-| `/music:pause` | Pause |
-| `/music:resume` | Resume |
-| `/music:next` | Switch to a different station (same genre) |
-| `/music:set-genre ambient` | Change your genre |
-| `/music:volume 50` | Set volume (0-100) |
-| `/music:music-status` | See what's playing right now |
+| `/claude-music:play` | Start playing music |
+| `/claude-music:play jazz` | Start playing a specific genre |
+| `/claude-music:stop` | Stop the music |
+| `/claude-music:pause` | Pause |
+| `/claude-music:resume` | Resume |
+| `/claude-music:next` | Switch to a different station (same genre) |
+| `/claude-music:set-genre ambient` | Change your genre |
+| `/claude-music:volume 50` | Set volume (0-100) |
+| `/claude-music:music-status` | See what's playing right now |
+| `/claude-music:vibe feeling tired, need energy` | Let the DJ pick music based on your mood |
 
 ## Genres
 
@@ -44,7 +45,7 @@ Type these in Claude Code:
 | **classical** | Deep, contemplative | Code review, reading, research |
 | **ambient** | Spacious, atmospheric | Brainstorming, design, creative work |
 
-Each genre has multiple radio stations. Use `/music:next` to cycle through them.
+Each genre has multiple radio stations. Use `/claude-music:next` to cycle through them.
 
 ## Your AI DJ
 
@@ -60,9 +61,9 @@ The status line at the bottom of your terminal shows what's currently playing �
 
 Your settings are saved automatically and persist across sessions:
 
-- **Genre** — your preferred default (changed via `/music:set-genre`)
-- **Volume** — 0 to 100 (changed via `/music:volume`)
-- **Autoplay** — music starts automatically when a session opens (on by default)
+- **Genre** — your preferred default (changed via `/claude-music:set-genre`)
+- **Volume** — 0 to 100 (changed via `/claude-music:volume`)
+- **Autoplay** — music starts automatically when a session opens (off by default)
 
 ## Works Everywhere
 
@@ -77,7 +78,19 @@ The plugin auto-detects your platform and available audio players. If nothing is
 
 ## Offline Mode
 
-No internet? Drop MP3 files into the `music/` folder inside the plugin directory. Name them by genre — `lofi-fallback.mp3`, `jazz-fallback.mp3`, etc. The plugin plays these on loop when radio streams aren't reachable.
+No internet? Add local MP3 files to `config/stations.yml` under any genre:
+
+```yaml
+lofi:
+  streams:
+    - name: SomaFM - Groove Salad
+      url: https://ice2.somafm.com/groovesalad-128-mp3
+  files:
+    - name: My Lofi Mix
+      path: lofi-chill.mp3
+```
+
+File paths are relative to the `music/` folder inside the plugin directory. The plugin plays local files when radio streams aren't reachable.
 
 ## Radio Stations
 

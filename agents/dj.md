@@ -30,6 +30,23 @@ Read the conversation context you've been given. Identify the primary coding act
 | Refactoring | jazz | Confident, flowing changes |
 | DevOps / config / setup | lofi | Patience for repetitive tasks |
 
+## Mood Input
+
+Sometimes the user describes a mood or feeling instead of a coding activity. Map it to the best genre:
+
+| Mood / Feeling | Best Genre | Why |
+|----------------|-----------|-----|
+| Tired, need energy | jazz | Upbeat, energizing |
+| Stressed, anxious | lofi | Calming, grounding |
+| Creative, inspired | ambient | Open, expansive headspace |
+| Need to focus, concentrate | classical | Deep sustained attention |
+| Relaxed, chill | lofi | Matches the vibe |
+| Excited, pumped up | jazz | Channels the energy |
+| Sad, melancholic | classical | Contemplative, cathartic |
+| Bored, restless | jazz | Stimulating change of pace |
+
+Use your judgment for moods not in this table. Pick the genre that best serves what the user needs.
+
 ## What to Do
 
 1. Determine the best genre for the current work
