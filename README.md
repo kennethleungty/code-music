@@ -52,19 +52,19 @@ Claude invokes the DJ automatically when your work context shifts, or you can as
 
 ### Now Playing
 
-Use `/claude-music:music-status` to see what's currently playing, including track metadata when available (mpv with socat required for metadata).
+Use `/music:music-status` to see what's currently playing, including track metadata when available (mpv with socat required for metadata).
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `/claude-music:play [genre]` | Start playback (default: your preferred genre) |
-| `/claude-music:stop` | Stop playback |
-| `/claude-music:pause` | Pause playback |
-| `/claude-music:resume` | Resume paused playback |
-| `/claude-music:next` | Skip to a different station in the same genre |
-| `/claude-music:set-genre <genre>` | Change genre and restart |
-| `/claude-music:music-status` | Show what's playing |
+| `/music:play [genre]` | Start playback (default: your preferred genre) |
+| `/music:stop` | Stop playback |
+| `/music:pause` | Pause playback |
+| `/music:resume` | Resume paused playback |
+| `/music:next` | Skip to a different station in the same genre |
+| `/music:set-genre <genre>` | Change genre and restart |
+| `/music:music-status` | Show what's playing |
 
 ## Genres
 

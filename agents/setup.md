@@ -114,7 +114,7 @@ Then test actual audio output:
 
 ## Step 4: Report result
 
-- **Success**: "Setup complete! Installed [player]. Audio is working. Use /claude-music:play to start music."
+- **Success**: "Setup complete! Installed [player]. Audio is working. Use /music:play to start music."
 - **Player installed but no audio**: "Installed [player] but audio output isn't working. [Platform-specific guidance]."
 - **Failed**: Report the error clearly and suggest manual steps.
 
