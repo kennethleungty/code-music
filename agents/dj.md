@@ -24,7 +24,6 @@ Understanding each stream helps you pick the right one. When a genre is selected
 - **Groove Salad** — SomaFM's most popular channel. Downtempo ambient beats with grooves. Mellow but rhythmic. The quintessential "coding music" stream.
 - **Groove Salad Classic** — The early 2000s version of Groove Salad. Slightly rawer, more trip-hop influenced. Nostalgia factor.
 - **Lush** — Sensuous female vocals over electronic/ambient beds. More melodic and song-structured than other lofi options. Good when you want something with a human touch.
-- **Beat Blender** — Late-night deep-house and downtempo chill. Deeper, more bass-driven than Groove Salad. Good for late sessions.
 
 ### jazz streams
 - **Fluid** — Not traditional jazz — instrumental hip-hop, future soul, liquid trap. Beats-forward with jazz sensibility. Great bridge between lofi and jazz.
@@ -42,20 +41,23 @@ Understanding each stream helps you pick the right one. When a genre is selected
 ### ambient streams
 - **Drone Zone** — SomaFM's purest ambient channel. Atmospheric textures with minimal beats. Very spa-like, meditative. Zero distractions. Best for deep creative work or when you need maximum calm.
 - **Deep Space One** — Deep ambient electronic, experimental and space music. More musical than Drone Zone — you'll hear melodic elements and occasional structure. Great for inner exploration while coding.
-- **Space Station Soma** — Spaced-out ambient with mid-tempo electronica. More rhythmic than Drone Zone but still atmospheric. Good middle ground.
 - **Mission Control** — Ambient/electronic mixed with NASA mission audio. Unique atmosphere — you'll hear Houston comms blended with ambient music. Inspiring for anything space/exploration themed.
-- **Synphaera** — Modern electronic ambient from an independent label. More polished and contemporary than Drone Zone. Structured ambient compositions.
 - **Dark Zone** — The darker side of deep ambient. Brooding, mysterious textures. For when you want ambient but with more weight and atmosphere. Good for intense focus sessions.
 - **n5MD Radio** — Emotional experiments in music: ambient, modern composition, post-rock, experimental. More varied than pure ambient — you'll hear guitars, orchestral elements mixed with electronics.
 
 ### edm streams
-- **DEF CON Radio** — Music for Hacking. The official DEF CON year-round channel. Electronic, industrial, and high-energy. Perfect for coding sprints and hacking sessions.
 - **The Trip** — Progressive house and trance. Tip-top tunes with building energy and euphoric peaks. Best for sustained high-energy coding.
 - **Cliqhop IDM** — Intelligent Dance Music. Blips, beeps, and intricate beats. Cerebral electronic music that rewards attention. Good for algorithmic or logic-heavy work.
 - **Dub Step Beyond** — Dubstep, dub, and deep bass. Heavy and rhythmic. For when you need raw energy and drive.
-- **Vaporwaves** — All vaporwave, all the time. Retro-futuristic, slowed-down samples, dreamy synths. Aesthetic and nostalgic. The chillwave/vaporwave aesthetic in pure form.
+- **Beat Blender** — Late-night deep-house and downtempo chill. Deeper, bass-driven electronic. Good for late sessions.
 - **Secret Agent** — The soundtrack for a stylish, mysterious, dangerous life. Cinematic downtempo with a spy-movie feel. Sophisticated and cool.
 - **Illinois Street Lounge** — Classic bachelor pad, playful exotica, and vintage sounds. Retro lounge with mid-century modern vibes. Light and fun.
+
+### synthwave streams
+- **Synphaera** — Modern electronic ambient from an independent label. More polished and contemporary. Structured ambient-leaning compositions with a retro-futuristic edge.
+- **Vaporwaves** — All vaporwave, all the time. Retro-futuristic, slowed-down samples, dreamy synths. Aesthetic and nostalgic. The chillwave/vaporwave aesthetic in pure form.
+- **DEF CON Radio** — Music for Hacking. The official DEF CON year-round channel. Electronic, industrial, and high-energy. Perfect for late night coding and hacking sessions.
+- **Space Station Soma** — Spaced-out mid-tempo electronica with a retro-futuristic feel. More rhythmic and driving than ambient. Good for sustained late-night sessions.
 
 ## How to Decide
 
