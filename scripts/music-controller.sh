@@ -15,6 +15,8 @@ WATCHDOG_PID_FILE="$DATA_DIR/watchdog.pid"
 MPV_SOCK="$DATA_DIR/mpv.sock"
 STATIONS_FILE="$PLUGIN_ROOT/config/sources.yml"
 ASSETS_DIR="$PLUGIN_ROOT/assets"
+POMODORO_PID_FILE="$DATA_DIR/pomodoro.pid"
+POMODORO_STATE_FILE="$DATA_DIR/pomodoro.json"
 
 # ============================================================================
 # JSON helpers — try jq, fallback to python3, fallback to sed
@@ -110,7 +112,7 @@ init_prefs() {
 {
   "genre": "lofi",
   "volume": "70",
-  "autoplay": "true",
+  "autoplay": "false",
   "player": "auto"
 }
 EOF
@@ -267,13 +269,31 @@ kill_player() {
 
 save_state() {
     local status="$1" genre="$2" url="$3" player="$4" pid="$5"
+
+    # Preserve session_start and station_count from existing state
+    local session_start station_count
+    session_start=$(json_get "$STATE_FILE" "session_start" 2>/dev/null || echo "")
+    station_count=$(json_get "$STATE_FILE" "station_count" 2>/dev/null || echo "0")
+    [ -z "$station_count" ] && station_count="0"
+
+    # If starting fresh playback (not already playing), reset session tracking
+    if [ "$status" = "playing" ] && [ -z "$session_start" ]; then
+        session_start=$(date +%s)
+        station_count="1"
+    elif [ "$status" = "playing" ]; then
+        station_count=$(( station_count + 1 ))
+    fi
+
+    # On stop, keep session_start for stats calculation
     cat > "$STATE_FILE" <<EOF
 {
   "status": "$status",
   "genre": "$genre",
   "url": "$url",
   "player": "$player",
-  "pid": "$pid"
+  "pid": "$pid",
+  "session_start": "$session_start",
+  "station_count": "$station_count"
 }
 EOF
 }
@@ -285,6 +305,7 @@ EOF
 get_stream_url() {
     local genre="${1:-lofi}"
     local prefer_http="${2:-false}"
+    local exclude_url="${3:-}"
     if [ ! -f "$STATIONS_FILE" ]; then
         echo ""
         return 1
@@ -293,11 +314,14 @@ get_stream_url() {
 import random
 streams = data.get('$genre', [])
 prefer_http = '$prefer_http' == 'true'
+exclude_url = '$exclude_url'
 if streams:
     if prefer_http:
         http_streams = [s for s in streams if s['url'].startswith('http://')]
         if http_streams:
             streams = http_streams
+    if exclude_url and len(streams) > 1:
+        streams = [s for s in streams if s['url'] != exclude_url]
     print(random.choice(streams)['url'])
 else:
     sys.exit(1)
@@ -345,6 +369,7 @@ check_stream_reachable() {
 
 do_play() {
     local genre="${1:-}"
+    local exclude_url="${2:-}"
     ensure_data_dir
     init_prefs
 
@@ -403,7 +428,7 @@ do_play() {
     if [ "$player" = "powershell.exe" ]; then
         prefer_http="True"
     fi
-    url=$(get_stream_url "$genre" "$prefer_http" 2>/dev/null || echo "")
+    url=$(get_stream_url "$genre" "$prefer_http" "$exclude_url" 2>/dev/null || echo "")
 
     if [ -n "$url" ] && check_stream_reachable "$url"; then
         source="stream"
@@ -531,24 +556,50 @@ do_play() {
 }
 
 do_stop() {
+    # Cancel any active pomodoro timer
+    kill_pomodoro
     if is_playing; then
-        local genre
+        local genre session_start station_count duration_min
         genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "unknown")
+        session_start=$(json_get "$STATE_FILE" "session_start" 2>/dev/null || echo "")
+        station_count=$(json_get "$STATE_FILE" "station_count" 2>/dev/null || echo "1")
+
+        # Calculate session duration
+        duration_min=""
+        if [ -n "$session_start" ] && [ "$session_start" != "0" ]; then
+            local now elapsed
+            now=$(date +%s)
+            elapsed=$(( now - session_start ))
+            duration_min=$(( elapsed / 60 ))
+        fi
+
         kill_player
-        save_state "stopped" "$genre" "" "" ""
-        echo "{\"status\": \"stopped\"}"
+        # Clear session tracking on stop
+        cat > "$STATE_FILE" <<EOF
+{
+  "status": "stopped",
+  "genre": "$genre",
+  "url": "",
+  "player": "",
+  "pid": "",
+  "session_start": "",
+  "station_count": "0"
+}
+EOF
+        echo "{\"status\": \"stopped\", \"genre\": \"$genre\", \"duration_minutes\": \"${duration_min:-0}\", \"station_count\": \"${station_count:-1}\"}"
     else
         echo "{\"status\": \"already_stopped\"}"
     fi
 }
 
 do_next() {
-    local genre
+    local genre current_url
     genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "lofi")
     [ -z "$genre" ] && genre="lofi"
+    current_url=$(json_get "$STATE_FILE" "url" 2>/dev/null || echo "")
 
-    # Stop current and play new stream (random selection will likely pick a different one)
-    do_play "$genre"
+    # Play a different stream, excluding the current one
+    do_play "$genre" "$current_url"
 }
 
 do_status() {
@@ -616,7 +667,7 @@ do_load_prefs() {
     local genre volume autoplay player
     genre=$(json_get "$PREFS_FILE" "genre" 2>/dev/null || echo "lofi")
     volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "70")
-    autoplay=$(json_get "$PREFS_FILE" "autoplay" 2>/dev/null || echo "true")
+    autoplay=$(json_get "$PREFS_FILE" "autoplay" 2>/dev/null || echo "false")
     player=$(json_get "$PREFS_FILE" "player" 2>/dev/null || echo "auto")
     echo "genre=$genre volume=$volume autoplay=$autoplay player=$player"
 }
@@ -626,6 +677,165 @@ do_save_pref() {
     init_prefs
     json_set "$PREFS_FILE" "$key" "$value"
     echo "{\"saved\": \"$key=$value\"}"
+}
+
+# ============================================================================
+# Pomodoro timer
+# ============================================================================
+
+kill_pomodoro() {
+    if [ -f "$POMODORO_PID_FILE" ]; then
+        local pid
+        pid=$(cat "$POMODORO_PID_FILE")
+        kill "$pid" 2>/dev/null || true
+        rm -f "$POMODORO_PID_FILE"
+    fi
+    rm -f "$POMODORO_STATE_FILE"
+}
+
+fade_and_chime() {
+    local player="$1"
+    local chime_file="$ASSETS_DIR/chime.wav"
+
+    # Fade volume down over 5 seconds (mpv only, others just stop)
+    if [ "$player" = "mpv" ] && [ -S "$MPV_SOCK" ] && command -v socat &>/dev/null; then
+        local current_vol
+        current_vol=$(echo '{"command":["get_property","volume"]}' | socat - "$MPV_SOCK" 2>/dev/null | \
+            python3 -c "import json,sys; print(int(json.load(sys.stdin).get('data',70)))" 2>/dev/null || echo "70")
+        # Gradual fade: 5 steps over 5 seconds
+        for step in 80 60 40 20 5; do
+            local vol=$(( current_vol * step / 100 ))
+            echo "{\"command\":[\"set_property\",\"volume\",$vol]}" | socat - "$MPV_SOCK" 2>/dev/null || true
+            sleep 1
+        done
+    fi
+
+    # Stop music
+    kill_player
+
+    # Play chime
+    if [ -f "$chime_file" ]; then
+        local chime_player
+        chime_player=$(detect_player)
+        case "$chime_player" in
+            mpv)        mpv --no-video --really-quiet "$chime_file" 2>/dev/null ;;
+            ffplay)     ffplay -nodisp -autoexit "$chime_file" 2>/dev/null ;;
+            afplay)     afplay "$chime_file" 2>/dev/null ;;
+            play)       play "$chime_file" 2>/dev/null ;;
+            mpv.exe)
+                local win_path
+                win_path=$(wslpath -w "$chime_file" 2>/dev/null || echo "$chime_file")
+                mpv.exe --no-video --really-quiet "$win_path" 2>/dev/null ;;
+            powershell.exe)
+                local win_path
+                win_path=$(wslpath -w "$chime_file" 2>/dev/null || echo "$chime_file")
+                powershell.exe -NoProfile -Command "
+                    Add-Type -AssemblyName PresentationCore
+                    \$p = New-Object System.Windows.Media.MediaPlayer
+                    \$p.Open([Uri]'$win_path')
+                    \$p.Play()
+                    Start-Sleep -Seconds 2
+                " 2>/dev/null ;;
+        esac
+    fi
+}
+
+do_pomodoro() {
+    local minutes="${1:-25}"
+    local genre="${2:-}"
+    ensure_data_dir
+
+    # Validate minutes
+    if ! [[ "$minutes" =~ ^[0-9]+$ ]] || [ "$minutes" -lt 1 ] || [ "$minutes" -gt 120 ]; then
+        echo "{\"error\": \"Duration must be 1-120 minutes\"}"
+        return 1
+    fi
+
+    # Kill any existing pomodoro timer
+    kill_pomodoro
+
+    # Start music (use provided genre or current preference)
+    local play_result
+    play_result=$(do_play "$genre")
+
+    # Get the player for fade later
+    local player
+    player=$(json_get "$STATE_FILE" "player" 2>/dev/null || echo "")
+
+    # Save pomodoro state
+    local start_time end_time
+    start_time=$(date +%s)
+    end_time=$(( start_time + minutes * 60 ))
+    cat > "$POMODORO_STATE_FILE" <<EOF
+{
+  "start_time": $start_time,
+  "end_time": $end_time,
+  "duration_minutes": $minutes,
+  "status": "active"
+}
+EOF
+
+    # Launch background timer
+    (
+        sleep $(( minutes * 60 ))
+        # Timer expired — fade out and chime
+        fade_and_chime "$player"
+        # Update pomodoro state
+        cat > "$POMODORO_STATE_FILE" <<INNER
+{
+  "start_time": $start_time,
+  "end_time": $end_time,
+  "duration_minutes": $minutes,
+  "status": "completed"
+}
+INNER
+        rm -f "$POMODORO_PID_FILE"
+    ) &>/dev/null &
+    local pomo_pid=$!
+    echo "$pomo_pid" > "$POMODORO_PID_FILE"
+    disown "$pomo_pid" 2>/dev/null || true
+
+    # Extract station from play result
+    local station genre_out
+    station=$(echo "$play_result" | python3 -c "import json,sys; print(json.load(sys.stdin).get('station',''))" 2>/dev/null || echo "")
+    genre_out=$(echo "$play_result" | python3 -c "import json,sys; print(json.load(sys.stdin).get('genre',''))" 2>/dev/null || echo "")
+
+    echo "{\"status\": \"pomodoro_started\", \"duration_minutes\": $minutes, \"genre\": \"$genre_out\", \"station\": \"$station\"}"
+}
+
+do_pomodoro_status() {
+    if [ ! -f "$POMODORO_STATE_FILE" ]; then
+        echo "{\"status\": \"no_pomodoro\"}"
+        return
+    fi
+
+    local pomo_status start_time end_time duration_minutes
+    pomo_status=$(json_get "$POMODORO_STATE_FILE" "status" 2>/dev/null || echo "none")
+    start_time=$(json_get "$POMODORO_STATE_FILE" "start_time" 2>/dev/null || echo "0")
+    end_time=$(json_get "$POMODORO_STATE_FILE" "end_time" 2>/dev/null || echo "0")
+    duration_minutes=$(json_get "$POMODORO_STATE_FILE" "duration_minutes" 2>/dev/null || echo "0")
+
+    local now remaining_seconds remaining_minutes
+    now=$(date +%s)
+    remaining_seconds=$(( end_time - now ))
+    if [ "$remaining_seconds" -lt 0 ]; then
+        remaining_seconds=0
+        pomo_status="completed"
+    fi
+    remaining_minutes=$(( remaining_seconds / 60 ))
+
+    echo "{\"status\": \"$pomo_status\", \"duration_minutes\": $duration_minutes, \"remaining_minutes\": $remaining_minutes, \"remaining_seconds\": $remaining_seconds}"
+}
+
+do_pomodoro_stop() {
+    if [ -f "$POMODORO_PID_FILE" ]; then
+        kill_pomodoro
+        kill_player
+        save_state "stopped" "" "" "" ""
+        echo "{\"status\": \"pomodoro_cancelled\"}"
+    else
+        echo "{\"status\": \"no_pomodoro\"}"
+    fi
 }
 
 # ============================================================================
@@ -640,20 +850,26 @@ case "${1:-help}" in
     detect-player)  detect_player ;;
     load-prefs)     do_load_prefs ;;
     save-pref)      do_save_pref "${2:-}" "${3:-}" ;;
-    list-genres)    do_list_genres ;;
+    list-genres)        do_list_genres ;;
+    pomodoro)           do_pomodoro "${2:-25}" "${3:-}" ;;
+    pomodoro-status)    do_pomodoro_status ;;
+    pomodoro-stop)      do_pomodoro_stop ;;
     help|*)
         cat <<'USAGE'
 claude-music controller
 
 Commands:
-  play [genre]        Start playback (lofi|jazz|classical|ambient|edm)
-  stop                Stop playback
-  next                Skip to next stream in current genre
-  status              Show current playback status
-  detect-player       Show detected audio player
-  load-prefs          Show current preferences
-  save-pref KEY VAL   Update a preference
-  list-genres         List available genres
+  play [genre]           Start playback (lofi|jazz|classical|ambient|edm)
+  stop                   Stop playback
+  next                   Skip to next stream in current genre
+  status                 Show current playback status
+  pomodoro [min] [genre] Start focus timer (default 25 min)
+  pomodoro-status        Show timer remaining
+  pomodoro-stop          Cancel focus timer and stop music
+  detect-player          Show detected audio player
+  load-prefs             Show current preferences
+  save-pref KEY VAL      Update a preference
+  list-genres            List available genres
 USAGE
         ;;
 esac

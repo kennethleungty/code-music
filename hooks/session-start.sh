@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
 # SessionStart hook for claude-music plugin
 # Deterministic platform/audio check — no LLM calls, no installs
 # Injects platform state into session so Claude knows what to do
+
+# Ensure the hook never surfaces an error to the user — all failures
+# are handled inline with fallback defaults.
+trap 'exit 0' ERR
+exec 2>/dev/null
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -138,17 +142,17 @@ else
     if [[ "$MISSING" == *"player"* ]]; then
         CONTEXT="$CONTEXT No audio player (mpv or ffplay) is installed. Install command: $INSTALL_HINT"
         if [ "$HAS_SUDO" = true ]; then
-            CONTEXT="$CONTEXT User has sudo — if they ask to play music, just run the install command directly and then start playback. No setup agent needed."
+            CONTEXT="$CONTEXT User has sudo — if they ask to play music, just run the install command directly and then start playback. No soundcheck agent needed."
         else
-            CONTEXT="$CONTEXT User does NOT have sudo — if they ask to play music, automatically download a static ffplay binary to ~/.local/bin (no root needed) and start playback. No setup agent, no asking — just do it."
+            CONTEXT="$CONTEXT User does NOT have sudo — if they ask to play music, automatically download a static ffplay binary to ~/.local/bin (no root needed) and start playback. No soundcheck agent, no asking — just do it."
         fi
     fi
     if [[ "$MISSING" == *"audio"* ]] && [ "$PLATFORM_WSL" = "True" ]; then
-        CONTEXT="$CONTEXT WSL2 audio output is not set up yet — dispatch the setup agent for WSL audio configuration help."
+        CONTEXT="$CONTEXT WSL2 audio output is not set up yet — dispatch the soundcheck agent for WSL audio configuration help."
     fi
 fi
 
-CONTEXT="$CONTEXT Commands: /claude-music:play, /claude-music:stop, /claude-music:next, /claude-music:status, /claude-music:list, /claude-music:vibe, /claude-music:say, /claude-music:volume, /claude-music:sources, /claude-music:help"
+CONTEXT="$CONTEXT Commands: /claude-music:play, /claude-music:stop, /claude-music:next, /claude-music:status, /claude-music:list, /claude-music:vibe, /claude-music:dj, /claude-music:say, /claude-music:focus, /claude-music:pomodoro, /claude-music:volume, /claude-music:sources, /claude-music:help"
 
 # ---- Output JSON for Claude Code ----
 escape_for_json() {

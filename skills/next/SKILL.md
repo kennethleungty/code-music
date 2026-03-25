@@ -16,4 +16,8 @@ Run:
 "${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" next
 ```
 
-Report the new station/track to the user.
+**If playback succeeds** (JSON has `"status": "playing"`):
+- Respond with a short message like: **♪ Skipped to SomaFM - Lush**
+- Use the `station` field from the JSON. Keep it to one line.
+
+**If nothing is playing**, let the user know and suggest `/claude-music:play`.

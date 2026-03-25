@@ -114,6 +114,23 @@ for s in data.get('$GENRE', []):
             fi
         fi
 
+        # Check for active pomodoro timer
+        POMO=""
+        POMO_FILE="$DATA_DIR/pomodoro.json"
+        if [ -f "$POMO_FILE" ]; then
+            local pomo_status pomo_end
+            pomo_status=$(json_file_val "$POMO_FILE" "status" "none")
+            if [ "$pomo_status" = "active" ]; then
+                pomo_end=$(json_file_val "$POMO_FILE" "end_time" "0")
+                local now remaining_min
+                now=$(date +%s)
+                remaining_min=$(( (pomo_end - now + 59) / 60 ))
+                if [ "$remaining_min" -gt 0 ]; then
+                    POMO="\033[33m⏱ ${remaining_min}m\033[0m"
+                fi
+            fi
+        fi
+
         # Build the display string
         if [ "$STATUS" = "playing" ]; then
             ICON="\033[32m♪\033[0m"  # green note
@@ -124,6 +141,7 @@ for s in data.get('$GENRE', []):
         if [ -n "$ICON" ]; then
             MUSIC="$ICON \033[36m${GENRE}\033[0m"
             [ -n "$STATION" ] && MUSIC="$MUSIC · $STATION"
+            [ -n "$POMO" ] && MUSIC="$MUSIC · $POMO"
             [ -n "$NOW_PLAYING" ] && MUSIC="$MUSIC · \033[2m${NOW_PLAYING}\033[0m"
         fi
     fi
