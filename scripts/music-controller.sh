@@ -111,7 +111,7 @@ init_prefs() {
         cat > "$PREFS_FILE" <<'EOF'
 {
   "genre": "lofi",
-  "volume": "70",
+  "volume": "50",
   "autoplay": "false",
   "player": "auto",
   "favorite_stations": {}
@@ -307,7 +307,6 @@ get_stream_url() {
     local genre="${1:-lofi}"
     local prefer_http="${2:-false}"
     local exclude_url="${3:-}"
-    local favorite_url="${4:-}"
     if [ ! -f "$STATIONS_FILE" ]; then
         echo ""
         return 1
@@ -317,7 +316,6 @@ import random
 streams = data.get('$genre', [])
 prefer_http = '$prefer_http' == 'true'
 exclude_url = '$exclude_url'
-favorite_url = '$favorite_url'
 if streams:
     if prefer_http:
         http_streams = [s for s in streams if s['url'].startswith('http://')]
@@ -325,12 +323,6 @@ if streams:
             streams = http_streams
     if exclude_url and len(streams) > 1:
         streams = [s for s in streams if s['url'] != exclude_url]
-    # Prefer the user's favorite station if available and not excluded
-    if favorite_url and not exclude_url:
-        fav = [s for s in streams if s['url'] == favorite_url]
-        if fav:
-            print(fav[0]['url'])
-            sys.exit(0)
     print(random.choice(streams)['url'])
 else:
     sys.exit(1)
@@ -476,12 +468,7 @@ do_play() {
         url="$force_url"
         stream_name="$force_station"
     else
-        # Get user's favorite station for this genre (used on /play, ignored on /next)
-        local favorite_url=""
-        if [ -z "$exclude_url" ]; then
-            favorite_url=$(get_favorite_station "$genre")
-        fi
-        url=$(get_stream_url "$genre" "$prefer_http" "$exclude_url" "$favorite_url" 2>/dev/null || echo "")
+        url=$(get_stream_url "$genre" "$prefer_http" "$exclude_url" 2>/dev/null || echo "")
     fi
 
     if [ -n "$url" ] && check_stream_reachable "$url"; then
@@ -500,8 +487,8 @@ do_play() {
 
     # Load volume
     local volume
-    volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "70")
-    [ -z "$volume" ] && volume="70"
+    volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "50")
+    [ -z "$volume" ] && volume="50"
 
     # Launch player in background
     local pid
@@ -691,7 +678,7 @@ do_status() {
     fi
 
     local volume
-    volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "70")
+    volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "50")
 
     cat <<EOF
 {
@@ -788,7 +775,7 @@ fade_and_chime() {
     if [ "$player" = "mpv" ] && [ -S "$MPV_SOCK" ] && command -v socat &>/dev/null; then
         local current_vol
         current_vol=$(echo '{"command":["get_property","volume"]}' | socat - "$MPV_SOCK" 2>/dev/null | \
-            python3 -c "import json,sys; print(int(json.load(sys.stdin).get('data',70)))" 2>/dev/null || echo "70")
+            python3 -c "import json,sys; print(int(json.load(sys.stdin).get('data',50)))" 2>/dev/null || echo "50")
         # Gradual fade: 5 steps over 5 seconds
         for step in 80 60 40 20 5; do
             local vol=$(( current_vol * step / 100 ))

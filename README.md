@@ -56,14 +56,14 @@ The plugin includes a DJ agent that picks the right music for you. It learns you
 
 | Genre | Vibe | Great for | Stations |
 |-------|------|-----------|----------|
-| **lofi** | Chill downtempo beats, mellow vibes | Focused coding, debugging, writing tests | 5 |
+| **lofi** | Chill downtempo beats, mellow vibes | Focused coding, debugging, writing tests | 4 |
 | **jazz** | Smooth jazz, bossa nova, instrumental | Building features, refactoring | 4 |
 | **classical** | Orchestral, chamber music, deep focus | Code review, reading, research | 4 |
 | **ambient** | Atmospheric drones, space music | Brainstorming, design, creative work | 5 |
 | **edm** | Electronic, trance, IDM, dubstep | Shipping sprints, high-energy sessions | 4 |
 | **synthwave** | Retro-futuristic, 80s-inspired | Late night coding, nostalgic vibes | 3 |
 | **lounge** | Cinematic, spy-movie elegance | Demos, presentations, smooth backdrop | 2 |
-| **indie** | Indie pop, folk, alternative | Creative writing, docs, warm sessions | 3 |
+| **indie** | Indie pop, folk, dream pop | Creative writing, docs, warm sessions | 4 |
 
 Each genre has multiple stations. Use `/next` to cycle through them.
 
@@ -121,14 +121,14 @@ The plugin auto-detects your platform and available audio players. If nothing is
 
 All streams are free, ad-free, and require no account. Primarily sourced from [SomaFM](https://somafm.com) (listener-supported internet radio since 2000) and public radio stations.
 
-- **Lofi** — Nightwave Plaza, SomaFM Lush, Groove Salad, Groove Salad Classic, Beat Blender
+- **Lofi** — Nightwave Plaza, Groove Salad, Groove Salad Classic, Beat Blender
 - **Jazz** — SomaFM Fluid, Bossa Beyond, FIP Jazz, WDCB Jazz
 - **Classical** — All Classical Portland, WWFM, France Musique, Iowa Public Radio
 - **Ambient** — SomaFM Drone Zone, Deep Space One, Space Station Soma, Mission Control, Dark Zone
 - **EDM** — SomaFM The Trip, Cliqhop IDM, Dub Step Beyond, Suburbs of Goa
 - **Synthwave** — SomaFM Synphaera, Vaporwaves, DEF CON Radio
 - **Lounge** — SomaFM Secret Agent, Illinois Street Lounge
-- **Indie** — SomaFM Indie Pop Rocks, Folk Forward, BAGeL Radio
+- **Indie** — SomaFM Lush, Indie Pop Rocks, Folk Forward, BAGeL Radio
 
 Want to add your own stations? Use `/sources` to manage streams interactively.
 

@@ -1,8 +1,6 @@
 lofi:
   - name: Nightwave Plaza
     url: http://radio.plaza.one/mp3
-  - name: SomaFM - Lush
-    url: http://ice2.somafm.com/lush-128-mp3
   - name: SomaFM - Groove Salad
     url: http://ice2.somafm.com/groovesalad-128-mp3
   - name: SomaFM - Groove Salad Classic
@@ -67,6 +65,8 @@ lounge:
     url: http://ice2.somafm.com/illstreet-128-mp3
 
 indie:
+  - name: SomaFM - Lush
+    url: http://ice2.somafm.com/lush-128-mp3
   - name: SomaFM - Indie Pop Rocks
     url: http://ice2.somafm.com/indiepop-128-mp3
   - name: SomaFM - Folk Forward
