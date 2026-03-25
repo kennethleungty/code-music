@@ -12,7 +12,13 @@ No setup, no accounts, no ads. Just install and play.
 /plugin install claude-music
 ```
 
-That's it. Start playing with `/play` — wonderful lofi music kicks in right away.
+That's it. Start playing with:
+
+```
+/play
+```
+
+Wonderful lofi music kicks in right away.
 
 > Don't have an audio player installed? No worries — the plugin detects this and walks you through installing one automatically.
 
