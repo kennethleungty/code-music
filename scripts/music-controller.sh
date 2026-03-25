@@ -621,8 +621,27 @@ do_stop() {
 
         kill_player
 
-        # Update lifetime stats
+        # Update lifetime + daily stats
         update_stats "$genre" "${duration_min:-0}" "${station_count:-1}"
+
+        # Read today's cumulative stats after update
+        local today_stats=""
+        if command -v python3 &>/dev/null && [ -f "$STATS_FILE" ]; then
+            today_stats=$(python3 -c "
+import json, datetime
+with open('$STATS_FILE') as f:
+    stats = json.load(f)
+today = datetime.date.today().isoformat()
+d = stats.get('daily', {}).get(today, {})
+print(json.dumps({
+    'today_sessions': d.get('sessions', 0),
+    'today_minutes': d.get('minutes', 0),
+    'today_stations': d.get('stations', 0),
+    'today_genres': d.get('genres', {})
+}))
+" 2>/dev/null || echo '{}')
+        fi
+        [ -z "$today_stats" ] && today_stats='{}'
 
         # Clear session tracking on stop
         cat > "$STATE_FILE" <<EOF
@@ -636,7 +655,14 @@ do_stop() {
   "station_count": "0"
 }
 EOF
-        echo "{\"status\": \"stopped\", \"genre\": \"$genre\", \"duration_minutes\": \"${duration_min:-0}\", \"station_count\": \"${station_count:-1}\"}"
+        # Merge session + today stats into response
+        python3 -c "
+import json
+session = {'status': 'stopped', 'genre': '$genre', 'duration_minutes': '${duration_min:-0}', 'station_count': '${station_count:-1}'}
+today = json.loads('$today_stats')
+session.update(today)
+print(json.dumps(session))
+" 2>/dev/null || echo "{\"status\": \"stopped\", \"genre\": \"$genre\", \"duration_minutes\": \"${duration_min:-0}\", \"station_count\": \"${station_count:-1}\"}"
     else
         echo "{\"status\": \"already_stopped\"}"
     fi
@@ -782,23 +808,44 @@ update_stats() {
     local genre="$1" duration_min="$2" station_count="$3"
     init_stats
     python3 -c "
-import json, time
+import json, time, datetime
 try:
     with open('$STATS_FILE') as f:
         stats = json.load(f)
 except:
-    stats = {'total_sessions': 0, 'total_minutes': 0, 'total_stations': 0, 'genres': {}, 'first_session': None, 'last_session': None}
+    stats = {'total_sessions': 0, 'total_minutes': 0, 'total_stations': 0, 'genres': {}, 'first_session': None, 'last_session': None, 'daily': {}}
 
 now = int(time.time())
+today = datetime.date.today().isoformat()
+dur = int('${duration_min}' or '0')
+sc = int('${station_count}' or '0')
+
+# Lifetime stats
 stats['total_sessions'] = stats.get('total_sessions', 0) + 1
-stats['total_minutes'] = stats.get('total_minutes', 0) + int('${duration_min}' or '0')
-stats['total_stations'] = stats.get('total_stations', 0) + int('${station_count}' or '0')
+stats['total_minutes'] = stats.get('total_minutes', 0) + dur
+stats['total_stations'] = stats.get('total_stations', 0) + sc
 genres = stats.get('genres', {})
-genres['$genre'] = genres.get('$genre', 0) + int('${duration_min}' or '0')
+genres['$genre'] = genres.get('$genre', 0) + dur
 stats['genres'] = genres
 if not stats.get('first_session'):
     stats['first_session'] = now
 stats['last_session'] = now
+
+# Daily stats
+daily = stats.get('daily', {})
+if today not in daily:
+    daily[today] = {'sessions': 0, 'minutes': 0, 'stations': 0, 'genres': {}}
+daily[today]['sessions'] = daily[today].get('sessions', 0) + 1
+daily[today]['minutes'] = daily[today].get('minutes', 0) + dur
+daily[today]['stations'] = daily[today].get('stations', 0) + sc
+dg = daily[today].get('genres', {})
+dg['$genre'] = dg.get('$genre', 0) + dur
+daily[today]['genres'] = dg
+stats['daily'] = daily
+
+# Prune daily entries older than 30 days
+cutoff = (datetime.date.today() - datetime.timedelta(days=30)).isoformat()
+stats['daily'] = {k: v for k, v in stats['daily'].items() if k >= cutoff}
 
 with open('$STATS_FILE', 'w') as f:
     json.dump(stats, f, indent=2)

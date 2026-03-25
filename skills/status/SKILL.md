@@ -4,24 +4,11 @@ description: Show current music playback status — what's playing, genre, stati
 disable-model-invocation: true
 model: haiku
 effort: low
+allowed-tools: Bash
 ---
 
 # Music Status
 
-Display the current music playback state including what song is playing.
+Show the current music playback state.
 
-## Instructions
-
-Run:
-
-```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" status
-```
-
-Format the JSON output nicely for the user, showing:
-- **Status**: playing / stopped
-- **Genre**: current genre
-- **Station**: radio station name
-- **Now Playing**: current track (if available from mpv metadata)
-- **Volume**: current volume level
-- **Player**: which audio player is being used
+Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" status` and format the JSON showing: Status, Genre, Station, Now Playing (if available), Volume, and Player.

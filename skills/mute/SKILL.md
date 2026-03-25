@@ -4,25 +4,21 @@ description: Stop background music playback and show session stats (alias for /s
 disable-model-invocation: true
 model: haiku
 effort: low
+allowed-tools: Bash
 ---
 
-# Mute Music
+# Mute (alias for /stop)
 
-Alias for `/stop`. Stop the currently playing background music and show session stats.
+Stop background music and show session + today's stats in a fun, friendly way.
 
-## Instructions
+Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" stop`.
 
-Run:
+The JSON response includes both session and today's cumulative fields.
 
-```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" stop
-```
+**If `"status": "stopped"`**, show two sections:
 
-**If music was playing** (JSON has `"status": "stopped"` with stats):
-- Show a short wrap-up using the `genre`, `duration_minutes`, and `station_count` fields.
-- Format like: **♪ Muted. You listened to jazz for 47 min across 3 stations. Good session. ♪**
-- If duration is 0 min, just say: **♪ Muted. ♪**
-- Keep it to one line, warm tone.
+**♪ Session wrapped ♪** — This session's stats: genre, duration (`duration_minutes`), stations visited (`station_count`). Add a fun one-liner comment (e.g. "Solid focus sesh!", "That was a good run.", "Hope the vibes were right."). Skip if duration is 0.
 
-**If nothing was playing** (`"status": "already_stopped"`):
-- Just say: **♪ No music playing. ♪**
+**♪ Today so far ♪** — Today's cumulative: total sessions (`today_sessions`), total minutes (`today_minutes`), genres listened to (`today_genres` — show each genre with its minutes). Keep it short and warm.
+
+**If `"status": "already_stopped"`**: **♪ No music playing. ♪**

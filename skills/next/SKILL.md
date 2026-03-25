@@ -4,22 +4,14 @@ description: Skip to a different stream URL within the current genre (does not c
 disable-model-invocation: true
 model: haiku
 effort: low
+allowed-tools: Bash
 ---
 
 # Next Track
 
-Switch to a different radio stream within the current genre.
+Skip to a different radio stream within the current genre.
 
-## Instructions
+Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" next`.
 
-Run:
-
-```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" next
-```
-
-**If playback succeeds** (JSON has `"status": "playing"`):
-- Respond with a short message like: **♪ Skipped to SomaFM - Lush ♪**
-- Use the `station` field from the JSON. Keep it to one line.
-
-**If nothing is playing**, respond: **♪ Nothing playing — try `/play` to start. ♪**
+- If `"status": "playing"`: **♪ Skipped to {station} ♪**
+- If nothing playing: **♪ Nothing playing — try `/play` to start. ♪**

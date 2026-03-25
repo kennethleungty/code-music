@@ -2,6 +2,7 @@
 name: vibe
 description: Auto-DJ — reads the current session context and picks the best genre automatically (preference towards relaxing)
 model: sonnet
+allowed-tools: Bash, Agent
 ---
 
 # Vibe

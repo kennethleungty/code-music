@@ -4,28 +4,16 @@ description: Show all available music genres and their stations
 disable-model-invocation: true
 model: haiku
 effort: low
+allowed-tools: Bash, Read
 ---
 
 # List Genres
 
-Show the user what genres and stations are available to play.
+Show available genres and their stations.
 
-## Instructions
-
-Read the sources file to get genres and stations:
-
-```bash
-cat "${CLAUDE_PLUGIN_ROOT}/config/sources.yml"
-```
-
-Display the genres with their stations in a friendly format like:
+Read `"${CLAUDE_PLUGIN_ROOT}/config/sources.yml"` and display as:
 
 **♪ Available genres ♪**
+- **{genre}** ({count} stations) — {station names}
 
-- **lofi** (5 stations) — Nightwave Plaza, SomaFM Lush, Groove Salad, ...
-- **jazz** (4 stations) — SomaFM Fluid, Bossa Beyond, ...
-- ...
-
-Use the station `name` fields from the YAML. Show all stations for each genre.
-
-End with: Play any genre with `/play <genre>`.
+Show all stations per genre. End with: Play any genre with `/play <genre>`.
