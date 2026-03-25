@@ -118,11 +118,9 @@ for s in data.get('$GENRE', []):
         POMO=""
         POMO_FILE="$DATA_DIR/pomodoro.json"
         if [ -f "$POMO_FILE" ]; then
-            local pomo_status pomo_end
             pomo_status=$(json_file_val "$POMO_FILE" "status" "none")
             if [ "$pomo_status" = "active" ]; then
                 pomo_end=$(json_file_val "$POMO_FILE" "end_time" "0")
-                local now remaining_min
                 now=$(date +%s)
                 remaining_min=$(( (pomo_end - now + 59) / 60 ))
                 if [ "$remaining_min" -gt 0 ]; then
