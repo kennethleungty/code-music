@@ -1,12 +1,12 @@
 ---
 name: play
-description: Start or restart background music playback with optional genre (lofi, jazz, classical, ambient, edm)
+description: Start or restart background music playback with optional genre or station name
 disable-model-invocation: true
 ---
 
 # Play Music
 
-Start background music playback. Optionally specify a genre.
+Start background music playback. Optionally specify a genre or a station name (e.g. `/play jazz` or `/play groove salad`).
 
 ## Instructions
 
@@ -27,4 +27,6 @@ Run the music controller:
 - Keep the tone friendly — music is ready to go, just need this one quick step first.
 - After any install succeeds, retry the play command automatically.
 
-Available genres: lofi (default), jazz, classical, ambient, edm.
+Available genres: lofi (default), jazz, classical, ambient, edm, synthwave, lounge, indie.
+
+You can also play a specific station by name — the controller matches partial names (e.g. "groove salad", "drone zone").

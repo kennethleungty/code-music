@@ -113,7 +113,8 @@ init_prefs() {
   "genre": "lofi",
   "volume": "70",
   "autoplay": "false",
-  "player": "auto"
+  "player": "auto",
+  "favorite_stations": {}
 }
 EOF
     fi
@@ -306,6 +307,7 @@ get_stream_url() {
     local genre="${1:-lofi}"
     local prefer_http="${2:-false}"
     local exclude_url="${3:-}"
+    local favorite_url="${4:-}"
     if [ ! -f "$STATIONS_FILE" ]; then
         echo ""
         return 1
@@ -315,6 +317,7 @@ import random
 streams = data.get('$genre', [])
 prefer_http = '$prefer_http' == 'true'
 exclude_url = '$exclude_url'
+favorite_url = '$favorite_url'
 if streams:
     if prefer_http:
         http_streams = [s for s in streams if s['url'].startswith('http://')]
@@ -322,6 +325,12 @@ if streams:
             streams = http_streams
     if exclude_url and len(streams) > 1:
         streams = [s for s in streams if s['url'] != exclude_url]
+    # Prefer the user's favorite station if available and not excluded
+    if favorite_url and not exclude_url:
+        fav = [s for s in streams if s['url'] == favorite_url]
+        if fav:
+            print(fav[0]['url'])
+            sys.exit(0)
     print(random.choice(streams)['url'])
 else:
     sys.exit(1)
@@ -367,11 +376,44 @@ check_stream_reachable() {
 # Playback functions
 # ============================================================================
 
+find_station_by_name() {
+    local search="$1"
+    [ ! -f "$STATIONS_FILE" ] && return 1
+    yaml_query "
+search = '''$search'''.lower()
+for genre, streams in data.items():
+    for s in streams:
+        if search in s['name'].lower():
+            print(genre + '|' + s['url'] + '|' + s['name'])
+            sys.exit(0)
+sys.exit(1)
+"
+    return $?
+}
+
 do_play() {
     local genre="${1:-}"
     local exclude_url="${2:-}"
+    local force_url=""
+    local force_station=""
     ensure_data_dir
     init_prefs
+
+    # Check if the argument is a station name rather than a genre
+    if [ -n "$genre" ] && [ ! -f "$STATIONS_FILE" ] || [ -n "$genre" ]; then
+        local known_genres
+        known_genres=$(do_list_genres 2>/dev/null)
+        if ! echo "$known_genres" | grep -qx "$genre"; then
+            # Not a known genre — try matching as a station name
+            local match
+            match=$(find_station_by_name "$genre" 2>/dev/null || echo "")
+            if [ -n "$match" ]; then
+                genre=$(echo "$match" | cut -d'|' -f1)
+                force_url=$(echo "$match" | cut -d'|' -f2)
+                force_station=$(echo "$match" | cut -d'|' -f3)
+            fi
+        fi
+    fi
 
     # Resolve genre
     if [ -z "$genre" ]; then
@@ -428,7 +470,19 @@ do_play() {
     if [ "$player" = "powershell.exe" ]; then
         prefer_http="True"
     fi
-    url=$(get_stream_url "$genre" "$prefer_http" "$exclude_url" 2>/dev/null || echo "")
+
+    # If a specific station was matched by name, use it directly
+    if [ -n "$force_url" ]; then
+        url="$force_url"
+        stream_name="$force_station"
+    else
+        # Get user's favorite station for this genre (used on /play, ignored on /next)
+        local favorite_url=""
+        if [ -z "$exclude_url" ]; then
+            favorite_url=$(get_favorite_station "$genre")
+        fi
+        url=$(get_stream_url "$genre" "$prefer_http" "$exclude_url" "$favorite_url" 2>/dev/null || echo "")
+    fi
 
     if [ -n "$url" ] && check_stream_reachable "$url"; then
         source="stream"
@@ -552,6 +606,10 @@ do_play() {
     start_watchdog "$pid"
     save_state "playing" "$genre" "$url" "$player" "$pid"
 
+    # Record user's favorite genre and station
+    json_set "$PREFS_FILE" "genre" "$genre"
+    save_favorite_station "$genre" "$url"
+
     echo "{\"status\": \"playing\", \"genre\": \"$genre\", \"station\": \"$stream_name\", \"source\": \"$source\", \"player\": \"$player\"}"
 }
 
@@ -664,12 +722,8 @@ for genre in data:
 
 do_load_prefs() {
     init_prefs
-    local genre volume autoplay player
-    genre=$(json_get "$PREFS_FILE" "genre" 2>/dev/null || echo "lofi")
-    volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "70")
-    autoplay=$(json_get "$PREFS_FILE" "autoplay" 2>/dev/null || echo "false")
-    player=$(json_get "$PREFS_FILE" "player" 2>/dev/null || echo "auto")
-    echo "genre=$genre volume=$volume autoplay=$autoplay player=$player"
+    # Output the full prefs file as JSON (includes favorite_stations)
+    cat "$PREFS_FILE"
 }
 
 do_save_pref() {
@@ -677,6 +731,39 @@ do_save_pref() {
     init_prefs
     json_set "$PREFS_FILE" "$key" "$value"
     echo "{\"saved\": \"$key=$value\"}"
+}
+
+save_favorite_station() {
+    local genre="$1" station_url="$2"
+    [ -z "$genre" ] || [ -z "$station_url" ] && return
+    init_prefs
+    python3 -c "
+import json, sys
+try:
+    with open('$PREFS_FILE') as f:
+        prefs = json.load(f)
+except:
+    sys.exit(0)
+favs = prefs.get('favorite_stations', {})
+favs['$genre'] = '$station_url'
+prefs['favorite_stations'] = favs
+with open('$PREFS_FILE', 'w') as f:
+    json.dump(prefs, f, indent=2)
+" 2>/dev/null || true
+}
+
+get_favorite_station() {
+    local genre="$1"
+    python3 -c "
+import json, sys
+try:
+    with open('$PREFS_FILE') as f:
+        prefs = json.load(f)
+    url = prefs.get('favorite_stations', {}).get('$genre', '')
+    print(url)
+except:
+    print('')
+" 2>/dev/null || echo ""
 }
 
 # ============================================================================
