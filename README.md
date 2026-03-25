@@ -82,7 +82,8 @@ Each genre has multiple stations. Use `/next` to cycle through them.
 | `/volume [0-100]` | Set volume, or show current if no number given |
 | `/status` | See what's playing right now |
 | `/list` | List available genres |
-| `/prefs` | See your saved preferences |
+| `/stats` | See current session and lifetime listening stats |
+| `/prefs` | See your saved preferences and favorite stations |
 | `/sources` | View, add, edit, or remove streams |
 | `/help` | Show help |
 

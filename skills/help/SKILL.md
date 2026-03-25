@@ -34,7 +34,8 @@ Print the following guide directly (do not run any commands):
 - `/status` — What's playing right now
 - `/list` — Show available genres
 - `/volume [0-100]` — Set volume, or show current if no number given
-- `/prefs` — See your saved preferences
+- `/stats` — See current session and lifetime listening stats
+- `/prefs` — See your saved preferences and favorite stations
 - `/sources` — View, add, edit, or remove streams and genres
 
 **Genres:** lofi, jazz, classical, ambient, edm, synthwave, lounge, indie

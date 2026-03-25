@@ -17,6 +17,7 @@ STATIONS_FILE="$PLUGIN_ROOT/config/sources.yml"
 ASSETS_DIR="$PLUGIN_ROOT/assets"
 POMODORO_PID_FILE="$DATA_DIR/pomodoro.pid"
 POMODORO_STATE_FILE="$DATA_DIR/pomodoro.json"
+STATS_FILE="$DATA_DIR/stats.json"
 
 # ============================================================================
 # JSON helpers — try jq, fallback to python3, fallback to sed
@@ -619,6 +620,10 @@ do_stop() {
         fi
 
         kill_player
+
+        # Update lifetime stats
+        update_stats "$genre" "${duration_min:-0}" "${station_count:-1}"
+
         # Clear session tracking on stop
         cat > "$STATE_FILE" <<EOF
 {
@@ -751,6 +756,58 @@ try:
 except:
     print('')
 " 2>/dev/null || echo ""
+}
+
+# ============================================================================
+# Lifetime stats
+# ============================================================================
+
+init_stats() {
+    ensure_data_dir
+    if [ ! -f "$STATS_FILE" ]; then
+        cat > "$STATS_FILE" <<'EOF'
+{
+  "total_sessions": 0,
+  "total_minutes": 0,
+  "total_stations": 0,
+  "genres": {},
+  "first_session": null,
+  "last_session": null
+}
+EOF
+    fi
+}
+
+update_stats() {
+    local genre="$1" duration_min="$2" station_count="$3"
+    init_stats
+    python3 -c "
+import json, time
+try:
+    with open('$STATS_FILE') as f:
+        stats = json.load(f)
+except:
+    stats = {'total_sessions': 0, 'total_minutes': 0, 'total_stations': 0, 'genres': {}, 'first_session': None, 'last_session': None}
+
+now = int(time.time())
+stats['total_sessions'] = stats.get('total_sessions', 0) + 1
+stats['total_minutes'] = stats.get('total_minutes', 0) + int('${duration_min}' or '0')
+stats['total_stations'] = stats.get('total_stations', 0) + int('${station_count}' or '0')
+genres = stats.get('genres', {})
+genres['$genre'] = genres.get('$genre', 0) + int('${duration_min}' or '0')
+stats['genres'] = genres
+if not stats.get('first_session'):
+    stats['first_session'] = now
+stats['last_session'] = now
+
+with open('$STATS_FILE', 'w') as f:
+    json.dump(stats, f, indent=2)
+" 2>/dev/null || true
+}
+
+do_load_stats() {
+    init_stats
+    cat "$STATS_FILE"
 }
 
 # ============================================================================
@@ -928,6 +985,7 @@ case "${1:-help}" in
     pomodoro)           do_pomodoro "${2:-25}" "${3:-}" ;;
     pomodoro-status)    do_pomodoro_status ;;
     pomodoro-stop)      do_pomodoro_stop ;;
+    load-stats)         do_load_stats ;;
     help|*)
         cat <<'USAGE'
 claude-music controller
@@ -943,6 +1001,7 @@ Commands:
   detect-player          Show detected audio player
   load-prefs             Show current preferences
   save-pref KEY VAL      Update a preference
+  load-stats             Show lifetime listening stats
   list-genres            List available genres
 USAGE
         ;;
