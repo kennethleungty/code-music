@@ -2,6 +2,8 @@
 name: help
 description: Show how to use claude-music — available commands and genres
 disable-model-invocation: true
+model: haiku
+effort: low
 ---
 
 # Help

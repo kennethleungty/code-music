@@ -2,6 +2,8 @@
 name: stats
 description: Show current session stats and lifetime listening stats
 disable-model-invocation: true
+model: haiku
+effort: low
 ---
 
 # Stats
@@ -10,17 +12,13 @@ Show both the current session and lifetime listening stats in one view.
 
 ## Instructions
 
-Run both commands:
+Run the combined command (returns both session and lifetime stats in one call):
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" status
+"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" full-stats
 ```
 
-```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" load-stats
-```
-
-Display everything in a friendly format:
+The response has `session` and `lifetime` objects. Display everything in a friendly format:
 
 **♪ Session ♪**
 

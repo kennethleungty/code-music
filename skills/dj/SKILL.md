@@ -1,6 +1,7 @@
 ---
 name: dj
 description: Alias for /vibe — Auto-DJ reads the session context and picks the best genre automatically
+model: sonnet
 ---
 
 # DJ

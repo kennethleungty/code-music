@@ -2,6 +2,8 @@
 name: status
 description: Show current music playback status — what's playing, genre, station, and volume
 disable-model-invocation: true
+model: haiku
+effort: low
 ---
 
 # Music Status

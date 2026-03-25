@@ -23,7 +23,7 @@ if [ ! -f "$PREFS_FILE" ]; then
     cat > "$PREFS_FILE" <<'EOF'
 {
   "genre": "lofi",
-  "volume": "70",
+  "volume": "40",
   "autoplay": "false",
   "player": "auto"
 }
@@ -104,7 +104,7 @@ if [ "$AUDIO_WORKING" = "False" ]; then
 fi
 
 # ---- Load preferences & attempt autoplay ----
-PREFS=$("$CONTROLLER" load-prefs 2>/dev/null || echo "genre=lofi volume=70 autoplay=false player=auto")
+PREFS=$("$CONTROLLER" load-prefs 2>/dev/null || echo "genre=lofi volume=40 autoplay=false player=auto")
 AUTOPLAY=$(echo "$PREFS" | grep -o 'autoplay=[^ ]*' | cut -d= -f2)
 GENRE=$(echo "$PREFS" | grep -o 'genre=[^ ]*' | cut -d= -f2)
 
@@ -166,6 +166,6 @@ escape_for_json() {
 }
 
 CONTEXT_ESCAPED=$(escape_for_json "$CONTEXT")
-printf '{\n  "hookSpecificOutput": {\n    "additionalContext": "%s"\n  }\n}\n' "$CONTEXT_ESCAPED"
+printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$CONTEXT_ESCAPED"
 
 exit 0

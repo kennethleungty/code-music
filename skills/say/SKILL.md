@@ -1,6 +1,7 @@
 ---
 name: say
 description: Tell the DJ your mood or vibe in your own words and it picks the right music
+model: sonnet
 ---
 
 # Say

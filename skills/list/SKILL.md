@@ -2,6 +2,8 @@
 name: list
 description: Show all available music genres and their stations
 disable-model-invocation: true
+model: haiku
+effort: low
 ---
 
 # List Genres

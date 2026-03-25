@@ -2,6 +2,8 @@
 name: play
 description: Start or restart background music playback with optional genre or station name
 disable-model-invocation: true
+model: haiku
+effort: low
 ---
 
 # Play Music

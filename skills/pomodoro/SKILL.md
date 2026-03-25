@@ -2,6 +2,8 @@
 name: pomodoro
 description: Alias for /focus — start a pomodoro focus timer with music
 disable-model-invocation: true
+model: haiku
+effort: low
 ---
 
 # Pomodoro Timer

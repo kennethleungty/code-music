@@ -2,6 +2,8 @@
 name: focus
 description: Start a pomodoro focus timer with music — fades out and chimes when time's up
 disable-model-invocation: true
+model: haiku
+effort: low
 ---
 
 # Focus Timer

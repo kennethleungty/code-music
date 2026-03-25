@@ -112,7 +112,7 @@ init_prefs() {
         cat > "$PREFS_FILE" <<'EOF'
 {
   "genre": "lofi",
-  "volume": "50",
+  "volume": "40",
   "autoplay": "false",
   "player": "auto",
   "favorite_stations": {}
@@ -488,8 +488,8 @@ do_play() {
 
     # Load volume
     local volume
-    volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "50")
-    [ -z "$volume" ] && volume="50"
+    volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "40")
+    [ -z "$volume" ] && volume="40"
 
     # Launch player in background
     local pid
@@ -683,7 +683,7 @@ do_status() {
     fi
 
     local volume
-    volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "50")
+    volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "40")
 
     cat <<EOF
 {
@@ -808,6 +808,143 @@ with open('$STATS_FILE', 'w') as f:
 do_load_stats() {
     init_stats
     cat "$STATS_FILE"
+}
+
+# Combined command: volume-adjust up|down|<number>
+# Does get + calculate + save + restart in a single call
+do_volume_adjust() {
+    local arg="$1"
+    init_prefs
+    local current
+    current=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "40")
+    [ -z "$current" ] && current="40"
+
+    local new_vol="$current"
+    local direction=""
+    case "$arg" in
+        up)
+            new_vol=$(( current + 10 ))
+            [ "$new_vol" -gt 100 ] && new_vol=100
+            direction="up"
+            ;;
+        down)
+            new_vol=$(( current - 10 ))
+            [ "$new_vol" -lt 0 ] && new_vol=0
+            direction="down"
+            ;;
+        [0-9]|[0-9][0-9]|100)
+            new_vol="$arg"
+            direction="set"
+            ;;
+        *)
+            echo "{\"error\": \"Invalid volume: $arg. Use 0-100, up, or down.\"}"
+            return 1
+            ;;
+    esac
+
+    json_set "$PREFS_FILE" "volume" "$new_vol"
+
+    # Restart playback if currently playing to apply new volume
+    local restarted="false"
+    if is_playing; then
+        do_play "" >/dev/null 2>&1
+        restarted="true"
+    fi
+
+    cat <<EOF
+{
+  "direction": "$direction",
+  "previous": "$current",
+  "volume": "$new_vol",
+  "restarted": "$restarted"
+}
+EOF
+}
+
+# Combined command: full-stats
+# Returns both session status and lifetime stats in one JSON
+do_full_stats() {
+    init_stats
+    local status_json lifetime_json
+    status_json=$(do_status)
+    lifetime_json=$(cat "$STATS_FILE")
+
+    cat <<EOF
+{
+  "session": $status_json,
+  "lifetime": $lifetime_json
+}
+EOF
+}
+
+# Combined command: full-prefs
+# Returns prefs with station names resolved (no need to read sources.yml separately)
+do_full_prefs() {
+    init_prefs
+    local prefs_json
+    prefs_json=$(cat "$PREFS_FILE")
+
+    # Resolve favorite station URLs to names
+    local resolved_favs=""
+    if command -v python3 &>/dev/null && [ -f "$STATIONS_FILE" ]; then
+        resolved_favs=$(python3 -c "
+import json, sys
+try:
+    import yaml
+    with open('$STATIONS_FILE') as f:
+        sources = yaml.safe_load(f)
+except ImportError:
+    with open('$STATIONS_FILE') as f:
+        text = f.read()
+    sources = {}
+    current_genre = None
+    current_item = {}
+    for line in text.split('\n'):
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#'):
+            continue
+        indent = len(line) - len(line.lstrip())
+        if indent == 0 and stripped.endswith(':'):
+            if current_item and current_genre:
+                sources.setdefault(current_genre, []).append(current_item)
+                current_item = {}
+            current_genre = stripped[:-1]
+            sources[current_genre] = []
+        elif indent == 2 and stripped.startswith('- name:'):
+            if current_item and current_genre:
+                sources[current_genre].append(current_item)
+            current_item = {'name': stripped.split(':', 1)[1].strip()}
+        elif indent == 4 and stripped.startswith('url:'):
+            current_item['url'] = stripped.split(': ', 1)[1].strip()
+    if current_item and current_genre:
+        sources.setdefault(current_genre, []).append(current_item)
+
+with open('$PREFS_FILE') as f:
+    prefs = json.load(f)
+
+url_to_name = {}
+for genre, stations in sources.items():
+    for s in stations:
+        url_to_name[s.get('url','')] = s.get('name','')
+
+favs = prefs.get('favorite_stations', {})
+resolved = {}
+for genre, url in favs.items():
+    name = url_to_name.get(url, url)
+    resolved[genre] = name
+
+print(json.dumps(resolved))
+" 2>/dev/null || echo "{}")
+    else
+        resolved_favs="{}"
+    fi
+
+    cat <<EOF
+{
+  "prefs": $prefs_json,
+  "favorite_names": $resolved_favs
+}
+EOF
 }
 
 # ============================================================================
@@ -981,6 +1118,9 @@ case "${1:-help}" in
     detect-player)  detect_player ;;
     load-prefs)     do_load_prefs ;;
     save-pref)      do_save_pref "${2:-}" "${3:-}" ;;
+    volume-adjust)  do_volume_adjust "${2:-}" ;;
+    full-stats)     do_full_stats ;;
+    full-prefs)     do_full_prefs ;;
     list-genres)        do_list_genres ;;
     pomodoro)           do_pomodoro "${2:-25}" "${3:-}" ;;
     pomodoro-status)    do_pomodoro_status ;;
@@ -1001,6 +1141,9 @@ Commands:
   detect-player          Show detected audio player
   load-prefs             Show current preferences
   save-pref KEY VAL      Update a preference
+  volume-adjust up|down|N  Adjust volume in one step (get+save+restart)
+  full-stats             Session status + lifetime stats combined
+  full-prefs             Prefs with station names resolved
   load-stats             Show lifetime listening stats
   list-genres            List available genres
 USAGE
