@@ -1,26 +1,54 @@
 # Installing claude-music for OpenCode
 
-## Steps
+## Prerequisites
 
-1. Clone this repository:
+- [OpenCode.ai](https://opencode.ai) installed
 
-```bash
-git clone https://github.com/kennethleungty/claude-music.git
+## Installation
+
+Add claude-music to the `plugin` array in your `opencode.json` (global or project-level):
+
+```json
+{
+  "plugin": ["claude-music@git+https://github.com/kennethleungty/claude-music.git"]
+}
 ```
 
-2. Copy the plugin files into your OpenCode project or configuration directory.
+Restart OpenCode. That's it — the plugin auto-installs and registers all skills.
 
-3. Start a new session and try:
-
-```
-/play
-```
+Verify by running: `/play`
 
 ## Requirements
 
 - An audio player: **mpv** (recommended) or **ffplay**
 - The plugin auto-detects your platform and walks you through installing one if needed
 
-## More Info
+## Updating
 
-See the full [README](https://github.com/kennethleungty/claude-music#readme) for all commands and genres.
+claude-music updates automatically when you restart OpenCode.
+
+To pin a specific version:
+
+```json
+{
+  "plugin": ["claude-music@git+https://github.com/kennethleungty/claude-music.git#v1.0.3"]
+}
+```
+
+## Troubleshooting
+
+### Plugin not loading
+
+1. Verify the plugin line in your `opencode.json`
+2. Make sure you're running a recent version of OpenCode
+3. Restart OpenCode after making changes
+
+### No audio
+
+1. Check that mpv or ffplay is installed: `which mpv` or `which ffplay`
+2. The plugin will offer to install one for you on first `/play`
+
+## Getting Help
+
+- Report issues: https://github.com/kennethleungty/claude-music/issues
+- Full documentation: https://github.com/kennethleungty/claude-music#readme
