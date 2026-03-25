@@ -863,19 +863,24 @@ do_volume_adjust() {
                 local player
                 player=$(detect_player)
                 local vol_arg="$new_vol"
+                local launched="false"
                 case "$player" in
                     mpv)
                         nohup mpv --no-video --really-quiet --volume="$vol_arg" --input-ipc-server="$MPV_SOCK" "$current_url" >/dev/null 2>&1 &
+                        launched="true"
                         ;;
                     ffplay)
                         nohup ffplay -nodisp -volume "$vol_arg" "$current_url" >/dev/null 2>&1 &
+                        launched="true"
                         ;;
                 esac
-                local new_pid=$!
-                echo $new_pid > "$PID_FILE"
-                start_watchdog "$new_pid"
-                save_state "playing" "$current_genre" "$current_url" "$player" "$new_pid"
-                applied="true"
+                if [ "$launched" = "true" ]; then
+                    local new_pid=$!
+                    echo $new_pid > "$PID_FILE"
+                    start_watchdog "$new_pid"
+                    save_state "playing" "$current_genre" "$current_url" "$player" "$new_pid"
+                    applied="true"
+                fi
             fi
         fi
     fi
