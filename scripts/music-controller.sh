@@ -851,35 +851,19 @@ do_volume_adjust() {
         if [ -S "$MPV_SOCK" ] && command -v socat &>/dev/null; then
             echo "{\"command\":[\"set_property\",\"volume\",$new_vol]}" | socat - "$MPV_SOCK" 2>/dev/null && applied="true"
         fi
-        # Fallback: restart with the same URL from state
+        # Fallback: kill and replay the exact same URL from state
         if [ "$applied" != "true" ] && [ -f "$STATE_FILE" ]; then
             local current_url current_genre
             current_url=$(json_get "$STATE_FILE" "url" 2>/dev/null || echo "")
             current_genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "")
             if [ -n "$current_url" ] && [ -n "$current_genre" ]; then
+                # Reuse do_play with a station name match so it replays the same URL
                 local current_station
                 current_station=$(get_stream_name "$current_genre" "$current_url" 2>/dev/null || echo "")
-                kill_player
-                local player
-                player=$(detect_player)
-                local vol_arg="$new_vol"
-                local launched="false"
-                case "$player" in
-                    mpv)
-                        nohup mpv --no-video --really-quiet --volume="$vol_arg" --input-ipc-server="$MPV_SOCK" "$current_url" >/dev/null 2>&1 &
-                        launched="true"
-                        ;;
-                    ffplay)
-                        nohup ffplay -nodisp -volume "$vol_arg" "$current_url" >/dev/null 2>&1 &
-                        launched="true"
-                        ;;
-                esac
-                if [ "$launched" = "true" ]; then
-                    local new_pid=$!
-                    echo $new_pid > "$PID_FILE"
-                    start_watchdog "$new_pid"
-                    save_state "playing" "$current_genre" "$current_url" "$player" "$new_pid"
-                    applied="true"
+                if [ -n "$current_station" ]; then
+                    do_play "$current_station" >/dev/null 2>&1 && applied="true"
+                else
+                    do_play "$current_genre" >/dev/null 2>&1 && applied="true"
                 fi
             fi
         fi
