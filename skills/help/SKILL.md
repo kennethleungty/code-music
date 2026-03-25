@@ -23,12 +23,17 @@ Print the following guide directly (do not run any commands):
 
 **DJ**
 - `/claude-music:vibe` — Auto-DJ picks music based on your current session
+- `/claude-music:dj` — Same as vibe
 - `/claude-music:say <mood>` — Tell the DJ how you're feeling in your own words
+
+**Focus**
+- `/claude-music:focus [min] [genre]` — Pomodoro timer with music (default 25 min). Music fades out and a chime plays when time's up.
+- `/claude-music:pomodoro` — Same as focus
 
 **Info**
 - `/claude-music:status` — What's playing right now
 - `/claude-music:list` — Show available genres
-- `/claude-music:volume <0-100>` — Adjust volume
+- `/claude-music:volume [0-100]` — Set volume, or show current if no number given
 - `/claude-music:sources` — View, add, edit, or remove streams and genres
 
 **Genres:** lofi, jazz, classical, ambient, edm

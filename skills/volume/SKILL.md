@@ -1,6 +1,6 @@
 ---
 name: volume
-description: Set the music playback volume (0-100)
+description: Set the music playback volume (0-100), or show current volume if no argument
 disable-model-invocation: true
 ---
 
@@ -9,6 +9,16 @@ disable-model-invocation: true
 Adjust the music volume. Accepts a number from 0 (mute) to 100 (max).
 
 ## Instructions
+
+**If no argument is provided** (`$ARGUMENTS` is empty), show the current volume:
+
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" status
+```
+
+Read the `volume` field from the JSON and respond like: **Volume: 70/100**
+
+**If a number is provided:**
 
 1. Save the volume preference:
 
@@ -22,10 +32,4 @@ Adjust the music volume. Accepts a number from 0 (mute) to 100 (max).
 "${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" play
 ```
 
-3. Report the new volume level to the user.
-
-If no number is provided, show the current volume:
-
-```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" status
-```
+3. Respond with a short confirmation like: **Volume set to 50/100**

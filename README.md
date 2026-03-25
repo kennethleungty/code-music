@@ -94,10 +94,11 @@ The plugin auto-detects your platform and available audio players. If nothing is
 
 All streams are free, ad-free, and require no account. Primarily sourced from [SomaFM](https://somafm.com) (listener-supported internet radio since 2000) and public radio stations.
 
-- **Lofi** — SomaFM Groove Salad, Groove Salad Classic, Lush, Beat Blender
-- **Jazz** — SomaFM Fluid, Bossa Beyond, Sonic Universe, FIP Jazz, WDCB Jazz
+- **Lofi** — Nightwave Plaza, SomaFM Lush, SomaFM Vaporwaves
+- **Jazz** — SomaFM Fluid, Bossa Beyond, FIP Jazz, WDCB Jazz
 - **Classical** — All Classical Portland, WWFM, France Musique, Iowa Public Radio
 - **Ambient** — SomaFM Drone Zone, Deep Space One, Space Station Soma, Mission Control, Synphaera, Dark Zone, n5MD Radio
+- **EDM** — SomaFM DEF CON Radio, The Trip, Cliqhop IDM, Dub Step Beyond, Secret Agent, Illinois Street Lounge
 
 Want to add your own stations? Use `/claude-music:sources` to manage streams interactively, or edit `config/sources.yml` directly:
 
