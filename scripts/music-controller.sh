@@ -1196,7 +1196,7 @@ case "${1:-help}" in
 claude-music controller
 
 Commands:
-  play [genre]           Start playback (lofi|jazz|classical|ambient|edm)
+  play [genre]           Start playback (lofi|jazz|classical|ambient|electronic)
   stop                   Stop playback
   next                   Skip to next stream in current genre
   status                 Show current playback status

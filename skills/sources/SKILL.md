@@ -39,8 +39,8 @@ At the end, tell the user what they can do:
 > - **Add a stream** — e.g. "add a stream to jazz called KCSM with url http://..."
 > - **Add a genre** — e.g. "add a new genre called rock"
 > - **Remove a stream** — e.g. "remove Nightwave Plaza from lofi"
-> - **Remove a genre** — e.g. "remove the edm genre"
-> - **Enable a genre** — uncomment a commented-out genre (like edm)
+> - **Remove a genre** — e.g. "remove the electronic genre"
+> - **Enable a genre** — uncomment a commented-out genre (like electronic)
 
 ## Handling Edits
 

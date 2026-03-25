@@ -40,6 +40,6 @@ Print the following guide directly (do not run any commands):
 - `/prefs` — See your saved preferences and favorite stations
 - `/sources` — View, add, edit, or remove streams and genres
 
-**Genres:** lofi, jazz, classical, ambient, edm, synthwave, lounge, indie
+**Genres:** lofi, jazz, classical, ambient, electronic, synthwave, lounge, indie
 
 The status bar at the bottom shows what's currently playing.
