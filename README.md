@@ -26,13 +26,15 @@ Or search for **claude-music** in the marketplace. [Detailed docs →](docs/READ
 
 ### OpenCode
 
-Tell OpenCode to fetch and follow the install instructions:
+Add to the `plugin` array in your `opencode.json`:
 
-```text
-Fetch and follow instructions from https://raw.githubusercontent.com/kennethleungty/claude-music/main/.opencode/INSTALL.md
+```json
+{
+  "plugin": ["claude-music@git+https://github.com/kennethleungty/claude-music.git"]
+}
 ```
 
-[Detailed docs →](docs/README.opencode.md)
+Restart OpenCode. [Detailed docs →](docs/README.opencode.md)
 
 ### Verify Installation
 
