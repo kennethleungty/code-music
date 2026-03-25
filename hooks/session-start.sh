@@ -148,7 +148,7 @@ else
     fi
 fi
 
-CONTEXT="$CONTEXT Commands: /claude-music:play, /claude-music:stop, /claude-music:next, /claude-music:status, /claude-music:list, /claude-music:vibe, /claude-music:say, /claude-music:volume, /claude-music:help"
+CONTEXT="$CONTEXT Commands: /claude-music:play, /claude-music:stop, /claude-music:next, /claude-music:status, /claude-music:list, /claude-music:vibe, /claude-music:say, /claude-music:volume, /claude-music:sources, /claude-music:help"
 
 # ---- Output JSON for Claude Code ----
 escape_for_json() {
