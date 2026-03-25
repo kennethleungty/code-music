@@ -1,6 +1,6 @@
 ---
 name: prefs
-description: Show your saved claude-music preferences — genre, volume, and favorite stations
+description: Show your saved claude-music preferences and favorite stations
 disable-model-invocation: true
 ---
 
@@ -22,12 +22,12 @@ Then read the sources file to resolve station URLs to names:
 cat "${CLAUDE_PLUGIN_ROOT}/config/sources.yml"
 ```
 
-Display the preferences in a friendly format like:
+Display in a friendly format:
 
 **♪ Your preferences ♪**
 
 - **Genre:** lofi
-- **Volume:** 70/100
+- **Volume:** 50/100
 - **Favorite stations:**
   - lofi — Nightwave Plaza
   - jazz — SomaFM Fluid

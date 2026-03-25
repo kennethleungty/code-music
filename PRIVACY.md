@@ -12,8 +12,9 @@ This plugin does not collect, transmit, or store any personal data. Everything s
 
 The plugin saves a small amount of state to `~/.claude-music/` (or `$CLAUDE_PLUGIN_DATA`) on your local filesystem:
 
-- **preferences.json** — your chosen genre, volume level, autoplay setting, and preferred audio player
+- **preferences.json** — your chosen genre, volume level, autoplay setting, preferred audio player, and favorite stations per genre
 - **state.json** — current playback state (status, genre, stream URL, player process ID, session start time, station count)
+- **stats.json** — lifetime listening stats (total sessions, total minutes, genre breakdown, first/last session timestamps)
 - **pomodoro.json** — active focus timer state (start time, end time, duration, status)
 - **player.pid / watchdog.pid / pomodoro.pid** — process IDs for managing playback and timers
 - **mpv.sock** — local Unix socket for communicating with the mpv audio player
