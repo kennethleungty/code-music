@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="assets/logo.png" alt="Code Music" width="400">
+  <img src="assets/logo.png" alt="Code Music" width="350">
 </p>
 
-##Enjoy Music in your Coding Agent Sessions
+<h2 align="center">Music in your Coding Agent Sessions</h2>
 
-Code Music plays lovely background music while your AI coding agents do the heavy lifting. Lofi, jazz, classical, ambient, and more — streaming live from the internet, right in your terminal.
+Enjoy great background music while your AI coding agents do the heavy lifting. Lofi, jazz, classical, ambient, and more — streaming live from the internet, right in your terminal.
 
 No setup, no accounts, no ads. Just install and play.
 
