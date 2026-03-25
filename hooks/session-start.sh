@@ -189,7 +189,7 @@ else
     fi
 fi
 
-CONTEXT="$CONTEXT Commands: /play, /stop, /next, /prev, /now, /pause, /mute, /status, /list, /vibe, /dj, /mood, /focus, /pomodoro, /volume, /stats, /prefs, /reset, /sources, /feedback, /help"
+CONTEXT="$CONTEXT Commands: /play, /stop, /next, /prev, /pause, /mute, /status, /list, /vibe, /dj, /mood, /focus, /pomodoro, /volume, /stats, /prefs, /reset, /sources, /feedback, /help"
 
 # ---- Output JSON for Claude Code ----
 escape_for_json() {

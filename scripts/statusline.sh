@@ -137,9 +137,17 @@ for s in data.get('$GENRE', []):
             ICON=""
         fi
 
+        # Check if muted
+        PREFS_FILE="$DATA_DIR/preferences.json"
+        VOL=""
+        if [ -f "$PREFS_FILE" ]; then
+            VOL=$(json_file_val "$PREFS_FILE" "volume" "")
+        fi
+
         if [ -n "$ICON" ]; then
             MUSIC="$ICON \033[1mCode Music\033[0m — Now playing: \033[36m${GENRE}\033[0m"
             [ -n "$STATION" ] && MUSIC="$MUSIC - $STATION"
+            [ "$VOL" = "0" ] && MUSIC="$MUSIC \033[31m(muted)\033[0m"
             [ -n "$POMO" ] && MUSIC="$MUSIC · $POMO"
             [ -n "$NOW_PLAYING" ] && MUSIC="$MUSIC · \033[2m${NOW_PLAYING}\033[0m"
         fi

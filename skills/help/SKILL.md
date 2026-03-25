@@ -24,7 +24,7 @@ Print the following guide directly (do not run any commands):
 - `/play [genre]` — Start music (optionally pick a genre)
 - `/stop` — Stop music
 - `/pause` — Stop music (alias for /stop)
-- `/mute` — Stop music (alias for /stop)
+- `/mute` — Silence the music without stopping (volume 0)
 - `/next` — Skip to a different stream in the same genre
 - `/prev` — Go back to the previous station
 
@@ -39,7 +39,6 @@ Print the following guide directly (do not run any commands):
 
 **Info**
 - `/status` — What's playing right now
-- `/now` — What's playing right now (alias for /status)
 - `/list` — Show available genres and their stations
 - `/volume [0-100]` — Set volume, or show current if no number given
 - `/stats` — See current session and lifetime listening stats

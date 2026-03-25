@@ -96,9 +96,8 @@ Each genre has multiple stations. Use `/next` to cycle through them.
 | `/stop` | Stop the music and show session stats |
 | `/next` | Switch to a different station (same genre) |
 | `/prev` | Go back to the previous station |
-| `/now` | See what's playing right now (alias for `/status`) |
 | `/pause` | Stop the music (alias for `/stop`) |
-| `/mute` | Stop the music (alias for `/stop`) |
+| `/mute` | Silence the music without stopping the stream (volume 0) |
 | `/vibe` | AI DJ reads your session and picks the best genre |
 | `/dj` | Same as `/vibe` |
 | `/mood <feeling>` | Tell the DJ how you're feeling and it picks the right music |
