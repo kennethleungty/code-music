@@ -133,3 +133,10 @@ All streams are free, ad-free, and require no account. Primarily sourced from [S
 
 Want to add your own stations? Use `/sources` to manage streams interactively.
 
+## Coming Soon
+
+- **Spotify Integration** — Connect your Spotify account to play your own playlists and liked songs directly through the plugin
+- **`/surprise`** — Plays a random genre or station you've never listened to before — perfect for discovering new music
+- **Auto-Vibe Mode** — The DJ continuously monitors your session and switches genres automatically as your work changes, no commands needed
+- **More Stations** — Expanded and better curated station library with more genres and sources from around the world
+
