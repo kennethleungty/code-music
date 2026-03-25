@@ -14,7 +14,7 @@ PID_FILE="$DATA_DIR/player.pid"
 WATCHDOG_PID_FILE="$DATA_DIR/watchdog.pid"
 MPV_SOCK="$DATA_DIR/mpv.sock"
 STATIONS_FILE="$PLUGIN_ROOT/config/sources.yml"
-MUSIC_DIR="$PLUGIN_ROOT/music"
+ASSETS_DIR="$PLUGIN_ROOT/assets"
 
 # ============================================================================
 # JSON helpers — try jq, fallback to python3, fallback to sed
@@ -67,10 +67,10 @@ try:
 except ImportError:
     with open('$STATIONS_FILE') as f:
         text = f.read()
-    # Minimal YAML subset parser for our simple structure
+    # Minimal YAML subset parser for our flat structure
+    # Format: genre: \n  - name: X \n    url: Y
     data = {}
     current_genre = None
-    current_section = None
     current_item = {}
     for line in text.split('\n'):
         stripped = line.strip()
@@ -78,29 +78,19 @@ except ImportError:
             continue
         indent = len(line) - len(line.lstrip())
         if indent == 0 and stripped.endswith(':'):
-            if current_item and current_genre and current_section:
-                data[current_genre][current_section].append(current_item)
+            if current_item and current_genre:
+                data[current_genre].append(current_item)
                 current_item = {}
             current_genre = stripped[:-1]
-            data[current_genre] = {'streams': [], 'files': []}
-            current_section = None
-        elif indent == 2 and stripped in ('streams: []', 'files: []'):
-            pass
-        elif indent == 2 and stripped in ('streams:', 'files:'):
-            if current_item and current_genre and current_section:
-                data[current_genre][current_section].append(current_item)
-                current_item = {}
-            current_section = stripped[:-1]
-        elif indent == 4 and stripped.startswith('- name:'):
-            if current_item and current_genre and current_section:
-                data[current_genre][current_section].append(current_item)
+            data[current_genre] = []
+        elif indent == 2 and stripped.startswith('- name:'):
+            if current_item and current_genre:
+                data[current_genre].append(current_item)
             current_item = {'name': stripped.split(':', 1)[1].strip()}
-        elif indent == 6 and stripped.startswith('url:'):
+        elif indent == 4 and stripped.startswith('url:'):
             current_item['url'] = stripped.split(': ', 1)[1].strip()
-        elif indent == 6 and stripped.startswith('path:'):
-            current_item['path'] = stripped.split(':', 1)[1].strip()
-    if current_item and current_genre and current_section:
-        data[current_genre][current_section].append(current_item)
+    if current_item and current_genre:
+        data[current_genre].append(current_item)
 $query
 " 2>/dev/null
 }
@@ -301,7 +291,7 @@ get_stream_url() {
     fi
     yaml_query "
 import random
-streams = data.get('$genre', {}).get('streams', [])
+streams = data.get('$genre', [])
 prefer_http = '$prefer_http' == 'true'
 if streams:
     if prefer_http:
@@ -323,7 +313,7 @@ get_stream_name() {
     fi
     local name
     name=$(yaml_query "
-for s in data.get('$genre', {}).get('streams', []):
+for s in data.get('$genre', []):
     if s['url'] == '$url':
         print(s['name'])
         break
@@ -335,28 +325,10 @@ else:
 
 get_fallback_file() {
     local genre="${1:-lofi}"
-    if [ -f "$STATIONS_FILE" ]; then
-        local file_path
-        file_path=$(yaml_query "
-import random
-files = data.get('$genre', {}).get('files', [])
-if files:
-    entry = random.choice(files)
-    path = entry.get('path', '')
-    print(path)
-else:
-    sys.exit(1)
-")
-        if [ $? -eq 0 ] && [ -n "$file_path" ]; then
-            # Resolve relative paths against MUSIC_DIR
-            if [[ "$file_path" != /* ]]; then
-                file_path="$MUSIC_DIR/$file_path"
-            fi
-            if [ -f "$file_path" ]; then
-                echo "$file_path"
-                return 0
-            fi
-        fi
+    local fallback_path="$ASSETS_DIR/${genre}_fallback.mp3"
+    if [ -f "$fallback_path" ]; then
+        echo "$fallback_path"
+        return 0
     fi
     echo ""
     return 1
@@ -523,14 +495,29 @@ do_play() {
             if [ "$source" = "local" ]; then
                 win_url=$(wslpath -w "$url" 2>/dev/null || echo "$url")
             fi
-            nohup powershell.exe -NoProfile -Command "
-                Add-Type -AssemblyName PresentationCore
-                \$p = New-Object System.Windows.Media.MediaPlayer
-                \$p.Volume = $volume / 100
-                \$p.Open([Uri]'$win_url')
-                \$p.Play()
-                while (\$true) { Start-Sleep -Seconds 60 }
-            " >/dev/null 2>&1 &
+            if [ "$source" = "local" ]; then
+                nohup powershell.exe -NoProfile -Command "
+                    Add-Type -AssemblyName PresentationCore
+                    \$p = New-Object System.Windows.Media.MediaPlayer
+                    \$p.Volume = $volume / 100
+                    \$p.Open([Uri]'$win_url')
+                    \$p.Play()
+                    Register-ObjectEvent \$p MediaEnded -Action {
+                        \$p.Position = [TimeSpan]::Zero
+                        \$p.Play()
+                    } | Out-Null
+                    while (\$true) { Start-Sleep -Seconds 60 }
+                " >/dev/null 2>&1 &
+            else
+                nohup powershell.exe -NoProfile -Command "
+                    Add-Type -AssemblyName PresentationCore
+                    \$p = New-Object System.Windows.Media.MediaPlayer
+                    \$p.Volume = $volume / 100
+                    \$p.Open([Uri]'$win_url')
+                    \$p.Play()
+                    while (\$true) { Start-Sleep -Seconds 60 }
+                " >/dev/null 2>&1 &
+            fi
             pid=$!
             ;;
     esac

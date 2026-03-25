@@ -29,6 +29,7 @@ Print the following guide directly (do not run any commands):
 - `/claude-music:status` — What's playing right now
 - `/claude-music:list` — Show available genres
 - `/claude-music:volume <0-100>` — Adjust volume
+- `/claude-music:sources` — View, add, edit, or remove streams and genres
 
 **Genres:** lofi, jazz, classical, ambient, edm
 

@@ -99,19 +99,15 @@ All streams are free, ad-free, and require no account. Primarily sourced from [S
 - **Classical** — All Classical Portland, WWFM, France Musique, Iowa Public Radio
 - **Ambient** — SomaFM Drone Zone, Deep Space One, Space Station Soma, Mission Control, Synphaera, Dark Zone, n5MD Radio
 
-Want to add your own stations or local files? Edit `config/sources.yml`:
+Want to add your own stations? Use `/claude-music:sources` to manage streams interactively, or edit `config/sources.yml` directly:
 
 ```yaml
 lofi:
-  streams:
-    - name: SomaFM - Groove Salad
-      url: http://ice2.somafm.com/groovesalad-128-mp3
-  files:
-    - name: My Lofi Mix
-      path: lofi-chill.mp3
+  - name: SomaFM - Groove Salad
+    url: http://ice2.somafm.com/groovesalad-128-mp3
 ```
 
-File paths are relative to the `music/` folder inside the plugin directory. The plugin plays local files when radio streams aren't reachable.
+If a stream is unreachable, the plugin falls back to `assets/<genre>_fallback.mp3` when available.
 
 ## License
 
