@@ -12,11 +12,7 @@ No setup, no accounts, no ads. Just install and play.
 /plugin install claude-music
 ```
 
-That's it. Start playing with:
-
-```
-/play
-```
+That's it. Start playing with `/play` — wonderful lofi music kicks in right away.
 
 > Don't have an audio player installed? No worries — the plugin detects this and walks you through installing one automatically.
 
@@ -49,6 +45,18 @@ The plugin includes a DJ agent that picks the right music for you. Two ways to u
 - **`/vibe`** — The DJ reads your current session automatically. Debugging? It switches to lofi. Deep in a code review? Classical kicks in. No input needed, it figures it out.
 - **`/say <mood>`** — Tell the DJ what you want in your own words. "feeling tired, need energy", "calm me down", "something retro and fun".
 
+## Genres
+
+| Genre | Vibe | Great for | Stations |
+|-------|------|-----------|----------|
+| **lofi** | Chill downtempo beats, mellow vibes | Focused coding, debugging, writing tests | 3 |
+| **jazz** | Smooth jazz, bossa nova, instrumental | Building features, refactoring | 4 |
+| **classical** | Orchestral, chamber music, deep focus | Code review, reading, research | 4 |
+| **ambient** | Atmospheric drones, space music, minimal beats | Brainstorming, design, creative work | 7 |
+| **edm** | Electronic, IDM, dub, secret agent grooves | Shipping sprints, high-energy sessions | 6 |
+
+Each genre has multiple stations. Use `/next` to cycle through them.
+
 ## All Commands
 
 | Command | What it does |
@@ -66,18 +74,6 @@ The plugin includes a DJ agent that picks the right music for you. Two ways to u
 | `/list` | List available genres |
 | `/sources` | View, add, edit, or remove streams |
 | `/help` | Show help |
-
-## Genres
-
-| Genre | Vibe | Great for | Stations |
-|-------|------|-----------|----------|
-| **lofi** | Chill downtempo beats, mellow vibes | Focused coding, debugging, writing tests | 3 |
-| **jazz** | Smooth jazz, bossa nova, instrumental | Building features, refactoring | 4 |
-| **classical** | Orchestral, chamber music, deep focus | Code review, reading, research | 4 |
-| **ambient** | Atmospheric drones, space music, minimal beats | Brainstorming, design, creative work | 7 |
-| **edm** | Electronic, IDM, dub, secret agent grooves | Shipping sprints, high-energy sessions | 6 |
-
-Each genre has multiple radio stations. Use `/next` to cycle through them.
 
 ## Focus Timer
 
