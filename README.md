@@ -1,6 +1,6 @@
 # Music for Claude Code
 
-Enjoy background music while your Claude Code works hard. Lofi, jazz, classical, ambient, electronic — streaming live from SomaFM and public radio, right in your terminal.
+Enjoy lovely background music while your Claude Code does the heavy lifting. Lofi, jazz, classical, ambient, electronic — streaming live from the internet, right in your terminal.
 
 No setup, no accounts, no ads. Just install and play.
 
