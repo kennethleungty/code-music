@@ -9,16 +9,39 @@ allowed-tools: Bash
 
 # Mute (alias for /stop)
 
-Stop background music and show session + today's stats in a fun, friendly way.
+Stop background music and show a nice recap. Same behavior as /stop.
 
 Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" stop`.
 
-The JSON response includes both session and today's cumulative fields.
+**If `"status": "already_stopped"`**: just say **♪ No music playing. ♪**
 
-**If `"status": "stopped"`**, show two sections:
+**If `"status": "stopped"`**, format the output as a recap card like this (use the exact box style):
 
-**♪ Session wrapped ♪** — This session's stats: genre, duration (`duration_minutes`), stations visited (`station_count`). Add a fun one-liner comment (e.g. "Solid focus sesh!", "That was a good run.", "Hope the vibes were right."). Skip if duration is 0.
+```
+┌─────────────────────────────────────┐
+│  ♪  claude-music · session recap    │
+├─────────────────────────────────────┤
+│                                     │
+│  This session                       │
+│  ─────────────                      │
+│  Genre:     {genre}                 │
+│  Duration:  {duration_minutes} min  │
+│  Stations:  {station_count}         │
+│                                     │
+│  Today so far                       │
+│  ────────────                       │
+│  Sessions:  {today_sessions}        │
+│  Listening: {today_minutes} min     │
+│  Genres:    {genre} ({min} min)     │
+│                                     │
+│  {fun one-liner}                    │
+│                                     │
+└─────────────────────────────────────┘
+```
 
-**♪ Today so far ♪** — Today's cumulative: total sessions (`today_sessions`), total minutes (`today_minutes`), genres listened to (`today_genres` — show each genre with its minutes). Keep it short and warm.
-
-**If `"status": "already_stopped"`**: **♪ No music playing. ♪**
+Rules:
+- Use the JSON fields: `duration_minutes`, `station_count`, `genre`, `today_sessions`, `today_minutes`, `today_genres`
+- For `today_genres`, list each genre with its minutes (e.g. "ambient (30 min), jazz (15 min)")
+- End with a fun, warm one-liner that varies each time (e.g. "Good vibes only.", "Hope that hit the spot.", "Your ears deserved that.", "Solid session, legend.", "Until next time.")
+- If `duration_minutes` is 0, show "< 1 min" instead
+- Keep the box width consistent — pad lines with spaces to align the right border
