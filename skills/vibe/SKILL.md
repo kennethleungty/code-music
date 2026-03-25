@@ -1,9 +1,11 @@
 ---
 name: vibe
-description: Auto-DJ — reads the current session context and picks the best genre automatically (preference towards relaxing)
+description: "Vibe — reads your session and picks the perfect genre"
 model: sonnet
 allowed-tools: Bash, Agent
 ---
+
+This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Vibe
 

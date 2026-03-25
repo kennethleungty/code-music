@@ -1,11 +1,13 @@
 ---
 name: stop
-description: Stop background music playback and show session stats
 disable-model-invocation: true
+description: "Stop the music and show session stats"
 model: haiku
 effort: low
 allowed-tools: Bash
 ---
+
+This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Stop Music
 

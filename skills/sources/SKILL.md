@@ -1,10 +1,12 @@
 ---
 name: sources
-description: View, add, edit, or remove music streams and genres in the code-music plugin
+description: "Sources — add, edit, or remove streams and genres"
 model: sonnet
 tools: Bash, Read, Edit, Write
 maxTurns: 8
 ---
+
+This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Sources Manager
 

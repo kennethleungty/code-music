@@ -3,8 +3,6 @@ lofi:
     url: http://radio.plaza.one/mp3
   - name: SomaFM - Groove Salad
     url: http://ice2.somafm.com/groovesalad-128-mp3
-  - name: SomaFM - Beat Blender
-    url: http://ice2.somafm.com/beatblender-128-mp3
 
 jazz:
   - name: SomaFM - Fluid
@@ -39,6 +37,8 @@ ambient:
     url: http://radio.stereoscenic.com/asp-h
 
 electronic:
+  - name: SomaFM - Beat Blender
+    url: http://ice2.somafm.com/beatblender-128-mp3
   - name: SomaFM - The Trip
     url: http://ice2.somafm.com/thetrip-128-mp3
   - name: SomaFM - Cliqhop IDM

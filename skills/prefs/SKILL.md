@@ -1,11 +1,13 @@
 ---
 name: prefs
-description: Show your saved code-music preferences and favorite stations
 disable-model-invocation: true
+description: "Prefs — your saved genres, stations, and favorites"
 model: haiku
 effort: low
 allowed-tools: Bash
 ---
+
+This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Preferences
 

@@ -1,11 +1,13 @@
 ---
 name: list
-description: Show all available music genres and their stations
 disable-model-invocation: true
+description: "List all available genres and their stations"
 model: haiku
 effort: low
 allowed-tools: Bash, Read
 ---
+
+This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # List Genres
 

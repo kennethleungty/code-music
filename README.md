@@ -143,11 +143,11 @@ The plugin auto-detects your platform and available audio players. If nothing is
 
 All streams are free, ad-free, and require no account.
 
-- **Lofi** — Nightwave Plaza, Groove Salad, Beat Blender
+- **Lofi** — Nightwave Plaza, Groove Salad
 - **Jazz** — SomaFM Fluid, Bossa Beyond, FIP Jazz, WDCB Jazz
 - **Classical** — All Classical Portland, WWFM, France Musique, Iowa Public Radio
 - **Ambient** — SomaFM Drone Zone, Deep Space One, Mission Control, Dark Zone, Stereoscenic Ambient
-- **Electronic** — SomaFM The Trip, Cliqhop IDM, Dub Step Beyond, Suburbs of Goa, Groove Salad Classic
+- **Electronic** — Beat Blender, SomaFM The Trip, Cliqhop IDM, Dub Step Beyond, Suburbs of Goa, Groove Salad Classic
 - **Synthwave** — SomaFM Synphaera, Vaporwaves, DEF CON Radio, Space Station Soma
 - **Lounge** — SomaFM Secret Agent, Illinois Street Lounge
 - **Indie** — SomaFM Lush, Indie Pop Rocks, Folk Forward, BAGeL Radio

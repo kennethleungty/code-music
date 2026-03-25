@@ -1,11 +1,13 @@
 ---
 name: play
-description: Start or restart background music playback with optional genre or station name
 disable-model-invocation: true
+description: "Play music — start or switch genre/station"
 model: haiku
 effort: low
 allowed-tools: Bash
 ---
+
+This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Play Music
 
@@ -14,6 +16,9 @@ Start background music. Optionally specify a genre or station name (e.g. `/play 
 Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" play $ARGUMENTS`.
 
 - If `"status": "playing"`: **♪ Now playing {genre} — {station} ♪**
+  - If `genre_reason` is `"preference"`: add *(resumed from your last session)*
+  - If `genre_reason` is `"default"`: add *(default genre — use `/play <genre>` to change)*
+  - If `genre_reason` is `"requested"`: no extra note needed
 - If error about no audio player: run the `install_command` (if `has_sudo` is true) or `nosudo_hint` (if false) from the JSON, then retry play automatically.
 
 Genres: lofi, jazz, classical, ambient, electronic, synthwave, lounge, indie. Also accepts station names (e.g. "groove salad").

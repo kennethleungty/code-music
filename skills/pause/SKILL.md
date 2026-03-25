@@ -1,7 +1,7 @@
 ---
-name: mute
+name: pause
 disable-model-invocation: true
-description: "Mute — stop the music (alias for /stop)"
+description: "Pause — stop the music (alias for /stop)"
 model: haiku
 effort: low
 allowed-tools: Bash
@@ -9,9 +9,9 @@ allowed-tools: Bash
 
 This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
-# Mute (alias for /stop)
+# Stop Music
 
-Stop background music and show a session recap. Same as /stop.
+Stop background music and show a session recap.
 
 Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" stop`.
 

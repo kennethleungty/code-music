@@ -1,11 +1,13 @@
 ---
 name: stats
-description: Show current session stats and lifetime listening stats
 disable-model-invocation: true
+description: "Stats — session and lifetime listening stats"
 model: haiku
 effort: low
 allowed-tools: Bash
 ---
+
+This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Stats
 

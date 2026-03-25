@@ -1,10 +1,12 @@
 ---
 name: help
-description: Show how to use code-music — available commands and genres
 disable-model-invocation: true
+description: "Help — all the commands and genres you can use"
 model: haiku
 effort: low
 ---
+
+This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Help
 
@@ -39,6 +41,9 @@ Print the following guide directly (do not run any commands):
 - `/stats` — See current session and lifetime listening stats
 - `/prefs` — See your saved preferences and favorite stations
 - `/sources` — View, add, edit, or remove streams and genres
+
+**Other**
+- `/feedback` — Open GitHub Issues to share feedback or report a bug
 
 **Genres:** lofi, jazz, classical, ambient, electronic, synthwave, lounge, indie
 

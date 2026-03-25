@@ -1,11 +1,13 @@
 ---
 name: pomodoro
-description: Alias for /focus — start a pomodoro focus timer with music
 disable-model-invocation: true
+description: "Pomodoro — focus timer with music (alias for /focus)"
 model: haiku
 effort: low
 allowed-tools: Bash
 ---
+
+This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Pomodoro (alias for /focus)
 

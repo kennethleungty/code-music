@@ -1,7 +1,7 @@
 ---
-name: status
+name: now
 disable-model-invocation: true
-description: "Status — what's playing, genre, station, and volume"
+description: "Now playing — see the current song, genre, and station"
 model: haiku
 effort: low
 allowed-tools: Bash
@@ -9,7 +9,7 @@ allowed-tools: Bash
 
 This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
-# Music Status
+# Now Playing
 
 Show the current music playback state.
 

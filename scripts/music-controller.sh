@@ -18,6 +18,7 @@ ASSETS_DIR="$PLUGIN_ROOT/assets"
 POMODORO_PID_FILE="$DATA_DIR/pomodoro.pid"
 POMODORO_STATE_FILE="$DATA_DIR/pomodoro.json"
 STATS_FILE="$DATA_DIR/stats.json"
+LOCK_FILE="$DATA_DIR/controller.lock"
 
 # ============================================================================
 # JSON helpers — try jq, fallback to python3, fallback to sed
@@ -122,38 +123,57 @@ EOF
 }
 
 detect_player() {
+    # Return cached result if available (avoids repeated command -v calls)
+    local cache_file="$DATA_DIR/detected_player.cache"
+    if [ -f "$cache_file" ]; then
+        local cached
+        cached=$(cat "$cache_file")
+        # Validate the cached player still exists
+        if [ "$cached" != "none" ] && command -v "$cached" &>/dev/null; then
+            echo "$cached"
+            return 0
+        fi
+        # Cache stale, remove and re-detect
+        rm -f "$cache_file"
+    fi
+
+    local result="none"
+
     # Check user preference first
     if [ -f "$PREFS_FILE" ]; then
         local pref
         pref=$(json_get "$PREFS_FILE" "player" 2>/dev/null || echo "auto")
         if [ "$pref" != "auto" ] && [ -n "$pref" ] && command -v "$pref" &>/dev/null; then
-            echo "$pref"
-            return 0
+            result="$pref"
         fi
     fi
 
-    # Auto-detect in priority order
-    for player in mpv ffplay afplay play; do
-        if command -v "$player" &>/dev/null; then
-            echo "$player"
-            return 0
+    if [ "$result" = "none" ]; then
+        # Auto-detect in priority order
+        for player in mpv ffplay afplay play; do
+            if command -v "$player" &>/dev/null; then
+                result="$player"
+                break
+            fi
+        done
+    fi
+
+    if [ "$result" = "none" ]; then
+        # WSL/Windows: try Windows-side mpv.exe
+        if command -v mpv.exe &>/dev/null; then
+            result="mpv.exe"
+        # WSL/Windows: PowerShell as last resort (limited but works for basic playback)
+        elif command -v powershell.exe &>/dev/null; then
+            result="powershell.exe"
         fi
-    done
-
-    # WSL/Windows: try Windows-side mpv.exe
-    if command -v mpv.exe &>/dev/null; then
-        echo "mpv.exe"
-        return 0
     fi
 
-    # WSL/Windows: PowerShell as last resort (limited but works for basic playback)
-    if command -v powershell.exe &>/dev/null; then
-        echo "powershell.exe"
-        return 0
-    fi
+    # Cache the result
+    ensure_data_dir
+    echo "$result" > "$cache_file"
 
-    echo "none"
-    return 1
+    echo "$result"
+    [ "$result" != "none" ] && return 0 || return 1
 }
 
 is_wsl() {
@@ -269,14 +289,83 @@ kill_player() {
     rm -f "$MPV_SOCK"
 }
 
+kill_orphaned_players() {
+    # Kill any audio player processes spawned by previous code-music/claude-music
+    # sessions that aren't tracked by the current PID file (e.g. after a rename
+    # or if the PID file was lost). This prevents overlapping audio.
+    local pattern
+    for pattern in 'music-controller\.sh play' 'somafm\.com' 'deepspaceone'; do
+        local pids
+        pids=$(pgrep -f "$pattern" 2>/dev/null || true)
+        for p in $pids; do
+            # Don't kill ourselves
+            [ "$p" = "$$" ] && continue
+            # Don't kill our parent chain
+            [ "$p" = "$PPID" ] && continue
+            kill "$p" 2>/dev/null || true
+        done
+    done
+    # Also kill any orphaned PowerShell MediaPlayer instances playing streams
+    local ps_pids
+    ps_pids=$(pgrep -f 'powershell.*PresentationCore.*MediaPlayer' 2>/dev/null || true)
+    for p in $ps_pids; do
+        kill "$p" 2>/dev/null || true
+    done
+}
+
+acquire_lock() {
+    ensure_data_dir
+    exec 9>"$LOCK_FILE"
+    if ! flock -n 9; then
+        # Gather info about the session holding the lock
+        local holding_pid=""
+        if [ -f "$PID_FILE" ]; then
+            holding_pid=$(cat "$PID_FILE" 2>/dev/null || echo "")
+        fi
+        local genre=""
+        if [ -f "$STATE_FILE" ]; then
+            genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "")
+        fi
+        local detail="Music is already playing from another code-music session"
+        [ -n "$genre" ] && detail="$detail (genre: $genre)"
+        detail="$detail. Stop it first with 'stop' in that session, or run 'stop' here to force-take control."
+        echo "{\"error\": \"session_locked\", \"message\": \"$detail\", \"holding_pid\": \"${holding_pid:-unknown}\"}"
+        exit 1
+    fi
+}
+
+acquire_lock_or_force() {
+    # For stop: try to acquire lock, but if another session holds it,
+    # wait briefly then proceed anyway — stop should always work.
+    ensure_data_dir
+    exec 9>"$LOCK_FILE"
+    flock -w 2 9 2>/dev/null || true
+}
+
+acquire_lock_or_force_fast() {
+    # For next/prev: try lock but never wait — just proceed immediately.
+    ensure_data_dir
+    exec 9>"$LOCK_FILE"
+    flock -n 9 2>/dev/null || true
+}
+
 save_state() {
     local status="$1" genre="$2" url="$3" player="$4" pid="$5"
 
     # Preserve session_start and station_count from existing state
-    local session_start station_count
+    local session_start station_count prev_url
     session_start=$(json_get "$STATE_FILE" "session_start" 2>/dev/null || echo "")
     station_count=$(json_get "$STATE_FILE" "station_count" 2>/dev/null || echo "0")
     [ -z "$station_count" ] && station_count="0"
+
+    # Track previous URL for /prev support
+    local old_url
+    old_url=$(json_get "$STATE_FILE" "url" 2>/dev/null || echo "")
+    if [ -n "$old_url" ] && [ "$old_url" != "$url" ]; then
+        prev_url="$old_url"
+    else
+        prev_url=$(json_get "$STATE_FILE" "prev_url" 2>/dev/null || echo "")
+    fi
 
     # If starting fresh playback (not already playing), reset session tracking
     if [ "$status" = "playing" ] && [ -z "$session_start" ]; then
@@ -294,6 +383,7 @@ save_state() {
   "url": "$url",
   "player": "$player",
   "pid": "$pid",
+  "prev_url": "$prev_url",
   "session_start": "$session_start",
   "station_count": "$station_count"
 }
@@ -349,6 +439,35 @@ else:
     echo "${name:-Unknown Station}"
 }
 
+# Combined URL+name lookup in a single Python call (avoids double YAML parse)
+get_stream_url_and_name() {
+    local genre="${1:-lofi}"
+    local prefer_http="${2:-false}"
+    local exclude_url="${3:-}"
+    if [ ! -f "$STATIONS_FILE" ]; then
+        echo "|Unknown Station"
+        return 1
+    fi
+    yaml_query "
+import random
+streams = data.get('$genre', [])
+prefer_http = '$prefer_http' == 'true'
+exclude_url = '$exclude_url'
+if streams:
+    if prefer_http:
+        http_streams = [s for s in streams if s['url'].startswith('http://')]
+        if http_streams:
+            streams = http_streams
+    if exclude_url and len(streams) > 1:
+        streams = [s for s in streams if s['url'] != exclude_url]
+    choice = random.choice(streams)
+    print(choice['url'] + '|' + choice.get('name', 'Unknown Station'))
+else:
+    sys.exit(1)
+"
+    return $?
+}
+
 get_fallback_file() {
     local genre="${1:-lofi}"
     local fallback_path="$ASSETS_DIR/${genre}_fallback.mp3"
@@ -387,10 +506,15 @@ sys.exit(1)
 do_play() {
     local genre="${1:-}"
     local exclude_url="${2:-}"
-    local force_url=""
+    local force_url="${3:-}"
     local force_station=""
     ensure_data_dir
     init_prefs
+
+    # Genre aliases
+    case "$genre" in
+        edm) genre="electronic" ;;
+    esac
 
     # Check if the argument is a station name rather than a genre
     if [ -n "$genre" ] && [ ! -f "$STATIONS_FILE" ] || [ -n "$genre" ]; then
@@ -408,14 +532,22 @@ do_play() {
         fi
     fi
 
-    # Resolve genre
+    # Resolve genre and track why it was chosen
+    local genre_reason="requested"
     if [ -z "$genre" ]; then
-        genre=$(json_get "$PREFS_FILE" "genre" 2>/dev/null || echo "ambient")
+        genre=$(json_get "$PREFS_FILE" "genre" 2>/dev/null || echo "")
+        if [ -n "$genre" ]; then
+            genre_reason="preference"
+        else
+            genre="ambient"
+            genre_reason="default"
+        fi
     fi
     [ -z "$genre" ] && genre="ambient"
 
-    # Stop existing playback
+    # Stop existing playback (tracked + orphaned)
     kill_player
+    kill_orphaned_players
 
     # Detect a usable player (mpv preferred, ffplay as fallback)
     local player
@@ -469,12 +601,19 @@ do_play() {
         url="$force_url"
         stream_name="$force_station"
     else
-        url=$(get_stream_url "$genre" "$prefer_http" "$exclude_url" 2>/dev/null || echo "")
+        # Single YAML parse to get both URL and station name
+        local url_and_name
+        url_and_name=$(get_stream_url_and_name "$genre" "$prefer_http" "$exclude_url" 2>/dev/null || echo "")
+        if [ -n "$url_and_name" ]; then
+            url="${url_and_name%%|*}"
+            stream_name="${url_and_name#*|}"
+        fi
     fi
 
-    if [ -n "$url" ] && check_stream_reachable "$url"; then
+    if [ -n "$url" ]; then
         source="stream"
-        stream_name=$(get_stream_name "$genre" "$url")
+        # Skip blocking reachability check — let the player handle dead streams.
+        # Players (mpv/ffplay) fail fast on unreachable URLs, avoiding a 3s curl delay.
     else
         # Fallback to local file
         url=$(get_fallback_file "$genre" 2>/dev/null || echo "")
@@ -598,7 +737,7 @@ do_play() {
     json_set "$PREFS_FILE" "genre" "$genre"
     save_favorite_station "$genre" "$url"
 
-    echo "{\"status\": \"playing\", \"genre\": \"$genre\", \"station\": \"$stream_name\", \"source\": \"$source\", \"player\": \"$player\"}"
+    echo "{\"status\": \"playing\", \"genre\": \"$genre\", \"genre_reason\": \"$genre_reason\", \"station\": \"$stream_name\", \"source\": \"$source\", \"player\": \"$player\"}"
 }
 
 do_stop() {
@@ -678,6 +817,26 @@ do_next() {
     do_play "$genre" "$current_url"
 }
 
+do_prev() {
+    local genre prev_url
+    genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "ambient")
+    [ -z "$genre" ] && genre="ambient"
+    prev_url=$(json_get "$STATE_FILE" "prev_url" 2>/dev/null || echo "")
+
+    if [ -z "$prev_url" ]; then
+        cat <<EOF
+{
+  "status": "error",
+  "message": "No previous station to go back to"
+}
+EOF
+        return
+    fi
+
+    # Play the previous stream by passing it as the genre's forced URL
+    do_play "$genre" "" "$prev_url"
+}
+
 do_status() {
     ensure_data_dir
     local status="stopped" genre="" url="" player="" station="" now_playing=""
@@ -749,6 +908,20 @@ do_save_pref() {
     init_prefs
     json_set "$PREFS_FILE" "$key" "$value"
     echo "{\"saved\": \"$key=$value\"}"
+}
+
+do_reset_prefs() {
+    ensure_data_dir
+    cat > "$PREFS_FILE" <<'EOF'
+{
+  "genre": "ambient",
+  "volume": "40",
+  "autoplay": "false",
+  "player": "auto",
+  "favorite_stations": {}
+}
+EOF
+    echo "{\"status\": \"reset\", \"message\": \"Preferences cleared. Genre default is now ambient.\"}"
 }
 
 save_favorite_station() {
@@ -916,12 +1089,23 @@ do_volume_adjust() {
         fi
     fi
 
+    # Build human-readable message
+    local message=""
+    if [ "$new_vol" -gt "$current" ]; then
+        message="Increased volume from $current to $new_vol"
+    elif [ "$new_vol" -lt "$current" ]; then
+        message="Decreased volume from $current to $new_vol"
+    else
+        message="Volume unchanged at $new_vol"
+    fi
+
     cat <<EOF
 {
   "direction": "$direction",
   "previous": "$current",
   "volume": "$new_vol",
-  "applied": "$applied"
+  "applied": "$applied",
+  "message": "$message"
 }
 EOF
 }
@@ -1176,13 +1360,15 @@ do_pomodoro_stop() {
 # ============================================================================
 
 case "${1:-help}" in
-    play)           do_play "${2:-}" ;;
-    stop)           do_stop ;;
-    next)           do_next ;;
+    play)           acquire_lock; do_play "${2:-}" ;;
+    stop)           acquire_lock_or_force; do_stop ;;
+    next)           acquire_lock_or_force_fast; do_next ;;
+    prev)           acquire_lock_or_force_fast; do_prev ;;
     status)         do_status ;;
     detect-player)  detect_player ;;
     load-prefs)     do_load_prefs ;;
     save-pref)      do_save_pref "${2:-}" "${3:-}" ;;
+    reset-prefs)    do_reset_prefs ;;
     volume-adjust)  do_volume_adjust "${2:-}" ;;
     full-stats)     do_full_stats ;;
     full-prefs)     do_full_prefs ;;
@@ -1199,6 +1385,7 @@ Commands:
   play [genre]           Start playback (lofi|jazz|classical|ambient|electronic)
   stop                   Stop playback
   next                   Skip to next stream in current genre
+  prev                   Go back to previous station
   status                 Show current playback status
   pomodoro [min] [genre] Start focus timer (default 25 min)
   pomodoro-status        Show timer remaining

@@ -1,11 +1,13 @@
 ---
 name: focus
-description: Start a pomodoro focus timer with music — fades out and chimes when time's up
 disable-model-invocation: true
+description: "Focus — pomodoro timer with music that fades when time's up"
 model: haiku
 effort: low
 allowed-tools: Bash
 ---
+
+This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Focus Timer
 
