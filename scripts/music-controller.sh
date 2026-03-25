@@ -111,7 +111,7 @@ init_prefs() {
     if [ ! -f "$PREFS_FILE" ]; then
         cat > "$PREFS_FILE" <<'EOF'
 {
-  "genre": "lofi",
+  "genre": "ambient",
   "volume": "40",
   "autoplay": "false",
   "player": "auto",
@@ -410,9 +410,9 @@ do_play() {
 
     # Resolve genre
     if [ -z "$genre" ]; then
-        genre=$(json_get "$PREFS_FILE" "genre" 2>/dev/null || echo "lofi")
+        genre=$(json_get "$PREFS_FILE" "genre" 2>/dev/null || echo "ambient")
     fi
-    [ -z "$genre" ] && genre="lofi"
+    [ -z "$genre" ] && genre="ambient"
 
     # Stop existing playback
     kill_player
@@ -644,8 +644,8 @@ EOF
 
 do_next() {
     local genre current_url
-    genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "lofi")
-    [ -z "$genre" ] && genre="lofi"
+    genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "ambient")
+    [ -z "$genre" ] && genre="ambient"
     current_url=$(json_get "$STATE_FILE" "url" 2>/dev/null || echo "")
 
     # Play a different stream, excluding the current one

@@ -22,7 +22,7 @@ mkdir -p "$DATA_DIR"
 if [ ! -f "$PREFS_FILE" ]; then
     cat > "$PREFS_FILE" <<'EOF'
 {
-  "genre": "lofi",
+  "genre": "ambient",
   "volume": "40",
   "autoplay": "false",
   "player": "auto"
@@ -104,7 +104,7 @@ if [ "$AUDIO_WORKING" = "False" ]; then
 fi
 
 # ---- Load preferences & attempt autoplay ----
-PREFS=$("$CONTROLLER" load-prefs 2>/dev/null || echo "genre=lofi volume=40 autoplay=false player=auto")
+PREFS=$("$CONTROLLER" load-prefs 2>/dev/null || echo "genre=ambient volume=40 autoplay=false player=auto")
 AUTOPLAY=$(echo "$PREFS" | grep -o 'autoplay=[^ ]*' | cut -d= -f2)
 GENRE=$(echo "$PREFS" | grep -o 'genre=[^ ]*' | cut -d= -f2)
 

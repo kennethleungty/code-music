@@ -108,13 +108,13 @@ Use your judgment for moods not in this table. Pick the genre that best serves w
 "${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" play <genre>
 ```
 
-3. Return a message in this format:
+3. Return a message in EXACTLY this format (musical notes are required):
 
-**♪ Switching to jazz — [one-liner reason tied to what's happening in the session] ♪**
+**♪ Now playing {genre} — {station name}. {one-liner reason tied to the session} ♪**
 
-The reason should reference the actual session context, not generic explanations. Examples:
-- "♪ Switching to lofi — you've been deep in this bug for a while, let's keep things calm ♪"
-- "♪ Switching to ambient — brainstorming mode, open headspace for design work ♪"
-- "♪ Switching to edm — shipping sprint energy, let's go ♪"
+Use the `genre` and `station` fields from the JSON output. The reason should reference the actual session context. Examples:
+- **♪ Now playing lofi — Groove Salad. You've been deep in this bug for a while, keeping things calm. ♪**
+- **♪ Now playing ambient — Drone Zone. Brainstorming mode, open headspace for design work. ♪**
+- **♪ Now playing edm — DEF CON Radio. Shipping sprint energy, let's go. ♪**
 
-Keep it to one line. Be specific to the session, not generic.
+IMPORTANT: Always wrap the message with **♪** at the start and **♪** at the end. Keep it to one line.

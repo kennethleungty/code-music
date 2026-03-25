@@ -37,6 +37,8 @@ ambient:
     url: http://ice2.somafm.com/missioncontrol-128-mp3
   - name: SomaFM - Dark Zone
     url: http://ice2.somafm.com/darkzone-128-mp3
+  - name: Stereoscenic Ambient
+    url: http://radio.stereoscenic.com/asp-h
 
 edm:
   - name: SomaFM - The Trip
