@@ -844,11 +844,40 @@ do_volume_adjust() {
 
     json_set "$PREFS_FILE" "volume" "$new_vol"
 
-    # Restart playback if currently playing to apply new volume
-    local restarted="false"
+    # Apply new volume to running player without changing station
+    local applied="false"
     if is_playing; then
-        do_play "" >/dev/null 2>&1
-        restarted="true"
+        # Prefer live volume change via mpv IPC socket (no restart needed)
+        if [ -S "$MPV_SOCK" ] && command -v socat &>/dev/null; then
+            echo "{\"command\":[\"set_property\",\"volume\",$new_vol]}" | socat - "$MPV_SOCK" 2>/dev/null && applied="true"
+        fi
+        # Fallback: restart with the same URL from state
+        if [ "$applied" != "true" ] && [ -f "$STATE_FILE" ]; then
+            local current_url current_genre
+            current_url=$(json_get "$STATE_FILE" "url" 2>/dev/null || echo "")
+            current_genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "")
+            if [ -n "$current_url" ] && [ -n "$current_genre" ]; then
+                local current_station
+                current_station=$(get_stream_name "$current_genre" "$current_url" 2>/dev/null || echo "")
+                kill_player
+                local player
+                player=$(detect_player)
+                local vol_arg="$new_vol"
+                case "$player" in
+                    mpv)
+                        nohup mpv --no-video --really-quiet --volume="$vol_arg" --input-ipc-server="$MPV_SOCK" "$current_url" >/dev/null 2>&1 &
+                        ;;
+                    ffplay)
+                        nohup ffplay -nodisp -volume "$vol_arg" "$current_url" >/dev/null 2>&1 &
+                        ;;
+                esac
+                local new_pid=$!
+                echo $new_pid > "$PID_FILE"
+                start_watchdog "$new_pid"
+                save_state "playing" "$current_genre" "$current_url" "$player" "$new_pid"
+                applied="true"
+            fi
+        fi
     fi
 
     cat <<EOF
@@ -856,7 +885,7 @@ do_volume_adjust() {
   "direction": "$direction",
   "previous": "$current",
   "volume": "$new_vol",
-  "restarted": "$restarted"
+  "applied": "$applied"
 }
 EOF
 }
