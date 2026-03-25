@@ -20,13 +20,6 @@ That's it. Start playing with:
 
 > Don't have an audio player installed? No worries — the plugin detects this and walks you through installing one automatically.
 
-### Manual (local development)
-
-```bash
-git clone https://github.com/kennethleungty/claude-music.git
-claude --plugin-dir ./claude-music
-```
-
 ## Quick Start
 
 ```
@@ -40,6 +33,13 @@ Or let the AI DJ pick for you:
 ```
 /vibe                            # DJ reads your session and picks automatically
 /say feeling tired, need energy  # Tell the DJ your mood in your own words
+```
+
+Or start a focus session with a timer:
+
+```
+/focus              # 25 min pomodoro — music fades out and chimes when done
+/focus 45 ambient   # 45 min with ambient music
 ```
 
 ## All Commands
