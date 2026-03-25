@@ -16,4 +16,4 @@ Run:
 "${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" list-genres
 ```
 
-Display the list to the user. They can play any of these with `/claude-music:play <genre>`.
+Display the list to the user. They can play any of these with `/play <genre>`.

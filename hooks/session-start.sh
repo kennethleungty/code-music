@@ -133,7 +133,7 @@ if [ -z "$MISSING" ]; then
         [ -n "$STATION" ] && CONTEXT="$CONTEXT ($STATION)"
         CONTEXT="$CONTEXT."
     elif [ "$MUSIC_STATUS" = "ready" ]; then
-        CONTEXT="$CONTEXT Ready to play. Use /claude-music:play to start."
+        CONTEXT="$CONTEXT Ready to play. Use /play to start."
     fi
 else
     # Something is missing — give Claude the info to relay to the user quickly
@@ -152,7 +152,7 @@ else
     fi
 fi
 
-CONTEXT="$CONTEXT Commands: /claude-music:play, /claude-music:stop, /claude-music:next, /claude-music:status, /claude-music:list, /claude-music:vibe, /claude-music:dj, /claude-music:say, /claude-music:focus, /claude-music:pomodoro, /claude-music:volume, /claude-music:sources, /claude-music:help"
+CONTEXT="$CONTEXT Commands: /play, /stop, /next, /status, /list, /vibe, /dj, /say, /focus, /pomodoro, /volume, /sources, /help"
 
 # ---- Output JSON for Claude Code ----
 escape_for_json() {

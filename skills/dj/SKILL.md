@@ -5,7 +5,7 @@ description: Alias for /vibe — Auto-DJ reads the session context and picks the
 
 # DJ
 
-Alias for `/claude-music:vibe`. Auto-detect the right music based on what's happening in the current session.
+Alias for `/vibe`. Auto-detect the right music based on what's happening in the current session.
 
 ## Instructions
 

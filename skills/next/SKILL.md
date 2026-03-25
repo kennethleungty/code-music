@@ -17,7 +17,7 @@ Run:
 ```
 
 **If playback succeeds** (JSON has `"status": "playing"`):
-- Respond with a short message like: **♪ Skipped to SomaFM - Lush**
+- Respond with a short message like: **♪ Skipped to SomaFM - Lush ♪**
 - Use the `station` field from the JSON. Keep it to one line.
 
-**If nothing is playing**, let the user know and suggest `/claude-music:play`.
+**If nothing is playing**, respond: **♪ Nothing playing — try `/play` to start. ♪**

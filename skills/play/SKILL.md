@@ -17,7 +17,7 @@ Run the music controller:
 ```
 
 **If playback succeeds** (JSON has `"status": "playing"`):
-- Respond with a short, warm message like: **♪ Now playing lofi — Nightwave Plaza**
+- Respond with a short, warm message like: **♪ Now playing lofi — Nightwave Plaza ♪**
 - Use the `genre` and `station` fields from the JSON. Keep it to one line.
 
 **If it shows an error about no audio player:**

@@ -107,11 +107,11 @@ Use your judgment for moods not in this table. Pick the genre that best serves w
 
 3. Return a message in this format:
 
-**♪ Switching to jazz — [one-liner reason tied to what's happening in the session]**
+**♪ Switching to jazz — [one-liner reason tied to what's happening in the session] ♪**
 
 The reason should reference the actual session context, not generic explanations. Examples:
-- "♪ Switching to lofi — you've been deep in this bug for a while, let's keep things calm"
-- "♪ Switching to ambient — brainstorming mode, open headspace for design work"
-- "♪ Switching to edm — shipping sprint energy, let's go"
+- "♪ Switching to lofi — you've been deep in this bug for a while, let's keep things calm ♪"
+- "♪ Switching to ambient — brainstorming mode, open headspace for design work ♪"
+- "♪ Switching to edm — shipping sprint energy, let's go ♪"
 
 Keep it to one line. Be specific to the session, not generic.

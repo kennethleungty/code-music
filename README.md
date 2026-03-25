@@ -1,6 +1,6 @@
 # Music for Claude Code
 
-Background music that plays while you code. Lofi, jazz, classical, ambient — streaming live from SomaFM and public radio, right in your terminal.
+Background music that plays while you code. Lofi, jazz, classical, ambient, EDM — streaming live from SomaFM and public radio, right in your terminal.
 
 No setup, no accounts, no ads. Just install and play.
 
@@ -19,6 +19,13 @@ That's it. Start playing with:
 ```
 
 > Don't have an audio player installed? No worries — the plugin detects this and walks you through installing one automatically.
+
+### Manual (local development)
+
+```bash
+git clone https://github.com/kennethleungty/claude-music.git
+claude --plugin-dir ./claude-music
+```
 
 ## Quick Start
 
@@ -39,25 +46,29 @@ Or let the AI DJ pick for you:
 
 | Command | What it does |
 |---------|-------------|
-| `/play` | Start playing music (lofi by default) |
-| `/play jazz` | Play a specific genre |
-| `/stop` | Stop the music |
+| `/play [genre]` | Start playing music (lofi by default) |
+| `/stop` | Stop the music and show session stats |
 | `/next` | Switch to a different station (same genre) |
-| `/volume 50` | Set volume (0-100) |
-| `/status` | See what's playing right now |
 | `/vibe` | AI DJ reads your session and picks the best genre |
+| `/dj` | Same as `/vibe` |
 | `/say <mood>` | Tell the DJ your mood and it picks the right music |
+| `/focus [min] [genre]` | Pomodoro timer with music (default 25 min) |
+| `/pomodoro` | Same as `/focus` |
+| `/volume [0-100]` | Set volume, or show current if no number given |
+| `/status` | See what's playing right now |
 | `/list` | List available genres |
+| `/sources` | View, add, edit, or remove streams |
 | `/help` | Show help |
 
 ## Genres
 
 | Genre | Vibe | Great for | Stations |
 |-------|------|-----------|----------|
-| **lofi** | Chill downtempo beats, mellow vocals | Focused coding, debugging, writing tests | 4 |
-| **jazz** | Smooth jazz, bossa nova, instrumental hip-hop | Building features, refactoring | 5 |
+| **lofi** | Chill downtempo beats, mellow vibes | Focused coding, debugging, writing tests | 3 |
+| **jazz** | Smooth jazz, bossa nova, instrumental | Building features, refactoring | 4 |
 | **classical** | Orchestral, chamber music, deep focus | Code review, reading, research | 4 |
 | **ambient** | Atmospheric drones, space music, minimal beats | Brainstorming, design, creative work | 7 |
+| **edm** | Electronic, IDM, dub, secret agent grooves | Shipping sprints, high-energy sessions | 6 |
 
 Each genre has multiple radio stations. Use `/next` to cycle through them.
 
@@ -68,9 +79,18 @@ The plugin includes a DJ agent that picks the right music for you. Two ways to u
 - **`/vibe`** — The DJ reads your current session automatically. Debugging? It switches to lofi. Deep in a code review? Classical kicks in. No input needed, it figures it out.
 - **`/say <mood>`** — Tell the DJ what you want in your own words. "feeling tired, need energy", "calm me down", "something retro and fun".
 
+## Focus Timer
+
+Start a pomodoro session with background music. When the timer ends, the music fades out and a chime plays.
+
+```
+/focus              # 25 min, current genre
+/focus 45 ambient   # 45 min of ambient
+```
+
 ## Now Playing
 
-The status line at the bottom of your terminal shows what's currently playing — genre, station name, and track title when available. Always visible, never scrolls away.
+The status line at the bottom of your terminal shows what's currently playing — genre, station name, track title, and pomodoro countdown when active. Always visible, never scrolls away.
 
 ## Preferences
 
@@ -100,7 +120,7 @@ All streams are free, ad-free, and require no account. Primarily sourced from [S
 - **Ambient** — SomaFM Drone Zone, Deep Space One, Space Station Soma, Mission Control, Synphaera, Dark Zone, n5MD Radio
 - **EDM** — SomaFM DEF CON Radio, The Trip, Cliqhop IDM, Dub Step Beyond, Secret Agent, Illinois Street Lounge
 
-Want to add your own stations? Use `/claude-music:sources` to manage streams interactively, or edit `config/sources.yml` directly:
+Want to add your own stations? Use `/sources` to manage streams interactively, or edit `config/sources.yml` directly:
 
 ```yaml
 lofi:

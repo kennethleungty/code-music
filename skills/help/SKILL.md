@@ -17,24 +17,24 @@ Print the following guide directly (do not run any commands):
 **claude-music** — background music for your coding sessions
 
 **Playback**
-- `/claude-music:play [genre]` — Start music (optionally pick a genre)
-- `/claude-music:stop` — Stop music
-- `/claude-music:next` — Skip to a different stream in the same genre
+- `/play [genre]` — Start music (optionally pick a genre)
+- `/stop` — Stop music
+- `/next` — Skip to a different stream in the same genre
 
 **DJ**
-- `/claude-music:vibe` — Auto-DJ picks music based on your current session
-- `/claude-music:dj` — Same as vibe
-- `/claude-music:say <mood>` — Tell the DJ how you're feeling in your own words
+- `/vibe` — Auto-DJ picks music based on your current session
+- `/dj` — Same as vibe
+- `/say <mood>` — Tell the DJ how you're feeling in your own words
 
 **Focus**
-- `/claude-music:focus [min] [genre]` — Pomodoro timer with music (default 25 min). Music fades out and a chime plays when time's up.
-- `/claude-music:pomodoro` — Same as focus
+- `/focus [min] [genre]` — Pomodoro timer with music (default 25 min). Music fades out and a chime plays when time's up.
+- `/pomodoro` — Same as focus
 
 **Info**
-- `/claude-music:status` — What's playing right now
-- `/claude-music:list` — Show available genres
-- `/claude-music:volume [0-100]` — Set volume, or show current if no number given
-- `/claude-music:sources` — View, add, edit, or remove streams and genres
+- `/status` — What's playing right now
+- `/list` — Show available genres
+- `/volume [0-100]` — Set volume, or show current if no number given
+- `/sources` — View, add, edit, or remove streams and genres
 
 **Genres:** lofi, jazz, classical, ambient, edm
 

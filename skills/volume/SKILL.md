@@ -16,7 +16,7 @@ Adjust the music volume. Accepts a number from 0 (mute) to 100 (max).
 "${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" status
 ```
 
-Read the `volume` field from the JSON and respond like: **Volume: 70/100**
+Read the `volume` field from the JSON and respond like: **♪ Volume: 70/100 ♪**
 
 **If a number is provided:**
 
@@ -32,4 +32,4 @@ Read the `volume` field from the JSON and respond like: **Volume: 70/100**
 "${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" play
 ```
 
-3. Respond with a short confirmation like: **Volume set to 50/100**
+3. Respond with a short confirmation like: **♪ Volume set to 50/100 ♪**
