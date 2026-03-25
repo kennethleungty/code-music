@@ -9,11 +9,19 @@ allowed-tools: Bash
 
 # Stop Music
 
-Stop background music and show a colored recap card.
+Stop background music and show a session recap.
 
 Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" stop`.
 
-The output contains a pre-formatted colored recap box followed by `---JSON---` and a JSON line.
+- If `"already_stopped"`: just say **♪ No music playing. ♪**
+- Otherwise format a recap using the JSON fields. Use `duration_minutes` for session duration (show "< 1 min" if 0), `station_count`, `genre`, `today_sessions`, `today_minutes`, and `today_genres` (each genre with its minutes, sorted by most listened).
 
-- If the output contains `"already_stopped"`: just say **♪ No music playing. ♪**
-- Otherwise: the colored box IS the response. Print the box lines exactly as they appear in the bash output (everything before `---JSON---`). Do NOT reformat, summarize, or wrap in a code block — output the lines verbatim so the ANSI colors render in the terminal.
+Output format — use this exact markdown structure:
+
+**♪ Claude Music · Session Recap**
+
+**This session** — {genre} for {duration_minutes} min, {station_count} station(s)
+
+**Today so far** — {today_sessions} session(s), {today_minutes} min total ({genres list e.g. "ambient 30 min, jazz 15 min"})
+
+*{fun one-liner that varies, e.g. "Good vibes only.", "Your ears deserved that.", "The code was better with music.", "Same time tomorrow?", "That was a vibe."}*
