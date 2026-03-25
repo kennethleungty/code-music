@@ -25,7 +25,7 @@ Wonderful lofi music kicks in right away.
 ## Quick Start
 
 ```
-/play                # Start playing (lofi by default)
+/play                # Start playing (ambient by default)
 /play jazz           # Play a specific genre
 /stop                # Stop the music
 ```
@@ -104,7 +104,7 @@ The status line at the bottom of your terminal shows what's currently playing �
 
 Your settings are saved automatically and persist across sessions:
 
-- **Genre** — your preferred default (lofi by default)
+- **Genre** — your preferred default (ambient by default)
 - **Volume** — 0 to 100 (changed via `/volume`)
 
 ## Works Everywhere
