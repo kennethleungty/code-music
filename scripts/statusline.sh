@@ -5,9 +5,43 @@
 
 input=$(cat)
 
+# ---- JSON helper: jq with python3 fallback ----
+json_val() {
+    local json="$1" key="$2" default="$3"
+    if command -v jq &>/dev/null; then
+        echo "$json" | jq -r ".$key // empty" 2>/dev/null || echo "$default"
+    elif command -v python3 &>/dev/null; then
+        echo "$json" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('$key','$default'))" 2>/dev/null || echo "$default"
+    else
+        echo "$default"
+    fi
+}
+
+json_file_val() {
+    local file="$1" key="$2" default="$3"
+    if command -v jq &>/dev/null; then
+        jq -r ".$key // empty" "$file" 2>/dev/null || echo "$default"
+    elif command -v python3 &>/dev/null; then
+        python3 -c "import json; print(json.load(open('$file')).get('$key','$default'))" 2>/dev/null || echo "$default"
+    else
+        echo "$default"
+    fi
+}
+
 # Parse session data for model and context
-MODEL=$(echo "$input" | jq -r '.model.display_name // "Claude"' 2>/dev/null || echo "Claude")
-PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' 2>/dev/null | cut -d. -f1)
+MODEL=$(json_val "$input" "model.display_name" "Claude")
+# model.display_name is nested — need special handling
+if command -v jq &>/dev/null; then
+    MODEL=$(echo "$input" | jq -r '.model.display_name // "Claude"' 2>/dev/null || echo "Claude")
+elif command -v python3 &>/dev/null; then
+    MODEL=$(echo "$input" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('model',{}).get('display_name','Claude'))" 2>/dev/null || echo "Claude")
+fi
+PCT=$(json_val "$input" "context_window.used_percentage" "0")
+if command -v jq &>/dev/null; then
+    PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' 2>/dev/null | cut -d. -f1)
+elif command -v python3 &>/dev/null; then
+    PCT=$(echo "$input" | python3 -c "import json,sys; d=json.load(sys.stdin); print(int(d.get('context_window',{}).get('used_percentage',0)))" 2>/dev/null || echo "0")
+fi
 [ -z "$PCT" ] && PCT="0"
 
 # Determine data directory
@@ -20,12 +54,12 @@ MUSIC=""
 if [ -f "$STATE_FILE" ] && [ -f "$PID_FILE" ]; then
     PID=$(cat "$PID_FILE" 2>/dev/null)
     if [ -n "$PID" ] && kill -0 "$PID" 2>/dev/null; then
-        STATUS=$(jq -r '.status // "stopped"' "$STATE_FILE" 2>/dev/null || echo "stopped")
-        GENRE=$(jq -r '.genre // ""' "$STATE_FILE" 2>/dev/null || echo "")
-        PLAYER=$(jq -r '.player // ""' "$STATE_FILE" 2>/dev/null || echo "")
+        STATUS=$(json_file_val "$STATE_FILE" "status" "stopped")
+        GENRE=$(json_file_val "$STATE_FILE" "genre" "")
+        PLAYER=$(json_file_val "$STATE_FILE" "player" "")
+        URL=$(json_file_val "$STATE_FILE" "url" "")
 
-        # Get station name from sources.yml via state.json
-        URL=$(jq -r '.url // ""' "$STATE_FILE" 2>/dev/null || echo "")
+        # Get station name from sources.yml
         PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-}"
         STATION=""
         if [ -n "$PLUGIN_ROOT" ] && [ -n "$URL" ] && [ -n "$GENRE" ] && command -v python3 &>/dev/null; then
@@ -65,9 +99,15 @@ for s in data.get('$GENRE', []):
         NOW_PLAYING=""
         MPV_SOCK="$DATA_DIR/mpv.sock"
         if [ "$PLAYER" = "mpv" ] && [ -S "$MPV_SOCK" ] && command -v socat &>/dev/null; then
-            NOW_PLAYING=$(echo '{"command":["get_property","media-title"]}' | \
-                socat - "$MPV_SOCK" 2>/dev/null | \
-                jq -r '.data // ""' 2>/dev/null || echo "")
+            if command -v jq &>/dev/null; then
+                NOW_PLAYING=$(echo '{"command":["get_property","media-title"]}' | \
+                    socat - "$MPV_SOCK" 2>/dev/null | \
+                    jq -r '.data // ""' 2>/dev/null || echo "")
+            elif command -v python3 &>/dev/null; then
+                NOW_PLAYING=$(echo '{"command":["get_property","media-title"]}' | \
+                    socat - "$MPV_SOCK" 2>/dev/null | \
+                    python3 -c "import json,sys; print(json.load(sys.stdin).get('data',''))" 2>/dev/null || echo "")
+            fi
             # Don't show if it's just the URL
             if echo "$NOW_PLAYING" | grep -q "^http" 2>/dev/null; then
                 NOW_PLAYING=""
