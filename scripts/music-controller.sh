@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # ============================================================================
-# claude-music controller — single entry point for all audio operations
+# code-music controller — single entry point for all audio operations
 # Usage: music-controller.sh <command> [args...]
 # ============================================================================
 
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
-DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude-music}"
+DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.code-music}"
 PREFS_FILE="$DATA_DIR/preferences.json"
 STATE_FILE="$DATA_DIR/state.json"
 PID_FILE="$DATA_DIR/player.pid"
@@ -1193,7 +1193,7 @@ case "${1:-help}" in
     load-stats)         do_load_stats ;;
     help|*)
         cat <<'USAGE'
-claude-music controller
+code-music controller
 
 Commands:
   play [genre]           Start playback (lofi|jazz|classical|ambient|electronic)

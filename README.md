@@ -11,7 +11,7 @@ No setup, no accounts, no ads. Just install and play.
 ### Claude Code (Official Marketplace)
 
 ```bash
-/plugin install claude-music
+/plugin install code-music
 ```
 
 ### Cursor
@@ -19,10 +19,10 @@ No setup, no accounts, no ads. Just install and play.
 In Cursor's Agent chat:
 
 ```
-/add-plugin claude-music
+/add-plugin code-music
 ```
 
-Or search for **claude-music** in the marketplace. [Detailed docs →](docs/README.cursor.md)
+Or search for **code-music** in the marketplace. [Detailed docs →](docs/README.cursor.md)
 
 ### OpenCode
 
@@ -30,7 +30,7 @@ Add to the `plugin` array in your `opencode.json`:
 
 ```json
 {
-  "plugin": ["claude-music@git+https://github.com/kennethleungty/claude-music.git"]
+  "plugin": ["code-music@git+https://github.com/kennethleungty/code-music.git"]
 }
 ```
 

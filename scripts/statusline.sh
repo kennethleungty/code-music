@@ -1,5 +1,5 @@
 #!/bin/bash
-# Claude Code status line script for claude-music
+# Claude Code status line script for code-music
 # Reads session JSON from stdin, appends now-playing info
 # Output: ♪ lofi · SomaFM Groove Salad · "Track Name" | [Model] 42% context
 
@@ -45,7 +45,7 @@ fi
 [ -z "$PCT" ] && PCT="0"
 
 # Determine data directory
-DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude-music}"
+DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.code-music}"
 STATE_FILE="$DATA_DIR/state.json"
 PID_FILE="$DATA_DIR/player.pid"
 

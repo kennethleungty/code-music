@@ -1,4 +1,4 @@
-# claude-music for OpenCode
+# code-music for OpenCode
 
 Background music for your OpenCode coding sessions. Lofi, jazz, classical, ambient, electronic — streaming live from the internet.
 
@@ -7,7 +7,7 @@ Background music for your OpenCode coding sessions. Lofi, jazz, classical, ambie
 Tell OpenCode to fetch and follow the install instructions:
 
 ```
-Fetch and follow instructions from https://raw.githubusercontent.com/kennethleungty/claude-music/main/.opencode/INSTALL.md
+Fetch and follow instructions from https://raw.githubusercontent.com/kennethleungty/code-music/main/.opencode/INSTALL.md
 ```
 
 ## Quick Start
@@ -44,4 +44,4 @@ lofi, jazz, classical, ambient, electronic, synthwave, lounge, indie
 - An audio player: **mpv** (recommended) or **ffplay**
 - The plugin auto-detects and offers to install one if needed
 
-See the full [README](https://github.com/kennethleungty/claude-music#readme) for more details.
+See the full [README](https://github.com/kennethleungty/code-music#readme) for more details.

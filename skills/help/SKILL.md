@@ -1,6 +1,6 @@
 ---
 name: help
-description: Show how to use claude-music — available commands and genres
+description: Show how to use code-music — available commands and genres
 disable-model-invocation: true
 model: haiku
 effort: low
@@ -8,7 +8,7 @@ effort: low
 
 # Help
 
-Show the user a quick guide to claude-music.
+Show the user a quick guide to code-music.
 
 ## Instructions
 
@@ -16,7 +16,7 @@ Print the following guide directly (do not run any commands):
 
 ---
 
-**claude-music** — background music for your coding sessions
+**code-music** — background music for your coding sessions
 
 **Playback**
 - `/play [genre]` — Start music (optionally pick a genre)

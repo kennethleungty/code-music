@@ -1,6 +1,6 @@
 ---
 name: prefs
-description: Show your saved claude-music preferences and favorite stations
+description: Show your saved code-music preferences and favorite stations
 disable-model-invocation: true
 model: haiku
 effort: low

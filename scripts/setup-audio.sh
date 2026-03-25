@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ============================================================================
-# Audio setup helper for claude-music
+# Audio setup helper for code-music
 # Handles platform-specific audio configuration (especially WSL)
 # Usage: setup-audio.sh <action>
 #   check     - Check if audio is working

@@ -1,4 +1,4 @@
-# claude-music for Cursor
+# code-music for Cursor
 
 Background music for your Cursor coding sessions. Lofi, jazz, classical, ambient, electronic — streaming live from the internet.
 
@@ -7,10 +7,10 @@ Background music for your Cursor coding sessions. Lofi, jazz, classical, ambient
 In Cursor's Agent chat:
 
 ```
-/add-plugin claude-music
+/add-plugin code-music
 ```
 
-Or search for **claude-music** in the marketplace.
+Or search for **code-music** in the marketplace.
 
 ## Quick Start
 
@@ -46,4 +46,4 @@ lofi, jazz, classical, ambient, electronic, synthwave, lounge, indie
 - An audio player: **mpv** (recommended) or **ffplay**
 - The plugin auto-detects and offers to install one if needed
 
-See the full [README](https://github.com/kennethleungty/claude-music#readme) for more details.
+See the full [README](https://github.com/kennethleungty/code-music#readme) for more details.

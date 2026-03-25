@@ -18,7 +18,7 @@ Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" stop`.
 
 Output format — use this exact markdown structure:
 
-**♪ Claude Music · Session Recap**
+**♪ Code Music · Session Recap**
 
 **This session** — {genre} for {duration_minutes} min, {station_count} station(s)
 

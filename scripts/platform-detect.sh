@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ============================================================================
-# Platform detection for claude-music
+# Platform detection for code-music
 # Outputs JSON with platform info for other scripts to consume
 # ============================================================================
 

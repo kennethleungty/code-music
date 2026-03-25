@@ -1,4 +1,4 @@
-# Installing claude-music for OpenCode
+# Installing code-music for OpenCode
 
 ## Prerequisites
 
@@ -6,11 +6,11 @@
 
 ## Installation
 
-Add claude-music to the `plugin` array in your `opencode.json` (global or project-level):
+Add code-music to the `plugin` array in your `opencode.json` (global or project-level):
 
 ```json
 {
-  "plugin": ["claude-music@git+https://github.com/kennethleungty/claude-music.git"]
+  "plugin": ["code-music@git+https://github.com/kennethleungty/code-music.git"]
 }
 ```
 
@@ -25,13 +25,13 @@ Verify by running: `/play`
 
 ## Updating
 
-claude-music updates automatically when you restart OpenCode.
+code-music updates automatically when you restart OpenCode.
 
 To pin a specific version:
 
 ```json
 {
-  "plugin": ["claude-music@git+https://github.com/kennethleungty/claude-music.git#v1.0.3"]
+  "plugin": ["code-music@git+https://github.com/kennethleungty/code-music.git#v1.0.3"]
 }
 ```
 
@@ -50,5 +50,5 @@ To pin a specific version:
 
 ## Getting Help
 
-- Report issues: https://github.com/kennethleungty/claude-music/issues
-- Full documentation: https://github.com/kennethleungty/claude-music#readme
+- Report issues: https://github.com/kennethleungty/code-music/issues
+- Full documentation: https://github.com/kennethleungty/code-music#readme
