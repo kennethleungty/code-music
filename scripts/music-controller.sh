@@ -667,16 +667,18 @@ t_sessions = today.get('today_sessions', 0)
 t_minutes = today.get('today_minutes', 0)
 t_genres = today.get('today_genres', {})
 
-# Colors
+# Colors — use bright variants (9x) for vivid terminal output
 DIM   = '\033[2m'
 BOLD  = '\033[1m'
-CYAN  = '\033[36m'
-MAG   = '\033[35m'
-YEL   = '\033[33m'
-GRN   = '\033[32m'
+CYAN  = '\033[96m'
+MAG   = '\033[95m'
+YEL   = '\033[93m'
+GRN   = '\033[92m'
+WHITE = '\033[97m'
 RST   = '\033[0m'
 BCYAN = BOLD + CYAN
 BMAG  = BOLD + MAG
+BWHT  = BOLD + WHITE
 
 dur_str = '< 1 min' if dur == 0 else f'{dur} min'
 genres_list = ', '.join(f'{g} ({m} min)' for g, m in sorted(t_genres.items(), key=lambda x: -x[1]))
@@ -706,25 +708,25 @@ def pad(s, w=W):
     return s + ' ' * max(padding, 0)
 
 lines = []
-lines.append(f'{DIM}╭{\"─\" * (W + 2)}╮{RST}')
-lines.append(f'{DIM}│{RST} {pad(BCYAN + \"♪  claude-music · session recap\" + RST)} {DIM}│{RST}')
-lines.append(f'{DIM}├{\"─\" * (W + 2)}┤{RST}')
-lines.append(f'{DIM}│{RST} {pad(\"\")} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(BMAG + \"This session\" + RST)} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(DIM + \"─\" * 13 + RST)} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(f\"Genre:     {BOLD}{genre}{RST}\")} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(f\"Duration:  {BOLD}{dur_str}{RST}\")} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(f\"Stations:  {BOLD}{sc}{RST}\")} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(\"\")} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(BMAG + \"Today so far\" + RST)} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(DIM + \"─\" * 13 + RST)} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(f\"Sessions:  {BOLD}{t_sessions}{RST}\")} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(f\"Listening: {BOLD}{t_min_str}{RST}\")} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(f\"Genres:    {BOLD}{genres_list}{RST}\")} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(\"\")} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(f\"{YEL}{quip}{RST}\")} {DIM}│{RST}')
-lines.append(f'{DIM}│{RST} {pad(\"\")} {DIM}│{RST}')
-lines.append(f'{DIM}╰{\"─\" * (W + 2)}╯{RST}')
+lines.append(f'{CYAN}╭{\"─\" * (W + 2)}╮{RST}')
+lines.append(f'{CYAN}│{RST} {pad(BCYAN + \"♪  Claude Music\" + RST + DIM + \" · Session Recap\" + RST)} {CYAN}│{RST}')
+lines.append(f'{CYAN}├{\"─\" * (W + 2)}┤{RST}')
+lines.append(f'{CYAN}│{RST} {pad(\"\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(BMAG + \"This session\" + RST)} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(DIM + \"─\" * 13 + RST)} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(f\"Genre:     {BWHT}{genre}{RST}\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(f\"Duration:  {BWHT}{dur_str}{RST}\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(f\"Stations:  {BWHT}{sc}{RST}\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(\"\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(BMAG + \"Today so far\" + RST)} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(DIM + \"─\" * 13 + RST)} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(f\"Sessions:  {BWHT}{t_sessions}{RST}\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(f\"Listening: {BWHT}{t_min_str}{RST}\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(f\"Genres:    {BWHT}{genres_list}{RST}\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(\"\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(f\"{YEL}{quip}{RST}\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}│{RST} {pad(\"\")} {CYAN}│{RST}')
+lines.append(f'{CYAN}╰{\"─\" * (W + 2)}╯{RST}')
 
 print('\n'.join(lines))
 " 2>/dev/null
