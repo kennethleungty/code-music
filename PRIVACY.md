@@ -1,8 +1,8 @@
 # Privacy Policy
 
-**claude-music** — a Claude Code plugin for background music playback.
+**claude-music** — background music for your Claude Code sessions, right in your terminal.
 
-Last updated: 2025-03-25
+Last updated: 2026-03-25
 
 ## Summary
 
