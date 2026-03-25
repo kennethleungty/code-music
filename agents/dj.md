@@ -73,8 +73,9 @@ Read the conversation context you've been given. Identify the primary coding act
 | DevOps / config / setup | lofi | Patience for repetitive tasks |
 | Hacking / security work | edm | High energy, matches the intensity |
 | Sprint / shipping fast | edm | Driving beats for velocity |
-| Late night coding | edm | Keeps energy up, fits the vibe |
-| Demoing / presenting | edm | Secret Agent or Illinois Lounge — stylish backdrop |
+| Late night coding | synthwave | Retro-futuristic energy, fits the vibe |
+| Demoing / presenting | lounge | Stylish, cinematic backdrop |
+| Creative writing / docs | indie | Warm, human, lyrical |
 
 ## Mood Input
 
@@ -90,9 +91,11 @@ Sometimes the user describes a mood or feeling instead of a coding activity. Map
 | Excited, pumped up | edm | Channels the energy |
 | Sad, melancholic | classical | Contemplative, cathartic |
 | Bored, restless | jazz | Stimulating change of pace |
-| Retro / nostalgic | edm | Vaporwaves and lounge vibes |
+| Retro / nostalgic | synthwave | 80s-inspired, neon-lit vibes |
 | Zen / meditative | ambient | Drone Zone for maximum calm |
 | Dark / intense | ambient | Dark Zone for brooding atmosphere |
+| Sophisticated / classy | lounge | Cinematic spy-movie elegance |
+| Warm / upbeat / sunny | indie | Feel-good indie pop and folk |
 
 Use your judgment for moods not in this table. Pick the genre that best serves what the user needs.
 
