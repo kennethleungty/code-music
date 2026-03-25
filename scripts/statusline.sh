@@ -24,12 +24,41 @@ if [ -f "$STATE_FILE" ] && [ -f "$PID_FILE" ]; then
         GENRE=$(jq -r '.genre // ""' "$STATE_FILE" 2>/dev/null || echo "")
         PLAYER=$(jq -r '.player // ""' "$STATE_FILE" 2>/dev/null || echo "")
 
-        # Get station name from streams.json
+        # Get station name from sources.yml via state.json
         URL=$(jq -r '.url // ""' "$STATE_FILE" 2>/dev/null || echo "")
         PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-}"
         STATION=""
-        if [ -n "$PLUGIN_ROOT" ] && [ -n "$URL" ] && [ -n "$GENRE" ]; then
-            STATION=$(jq -r ".[\"$GENRE\"][] | select(.url==\"$URL\") | .name" "$PLUGIN_ROOT/scripts/streams.json" 2>/dev/null || echo "")
+        if [ -n "$PLUGIN_ROOT" ] && [ -n "$URL" ] && [ -n "$GENRE" ] && command -v python3 &>/dev/null; then
+            SOURCES="$PLUGIN_ROOT/config/sources.yml"
+            if [ -f "$SOURCES" ]; then
+                STATION=$(python3 -c "
+try:
+    import yaml
+    with open('$SOURCES') as f: data = yaml.safe_load(f)
+except ImportError:
+    data = {}
+    current_genre = None
+    current_item = {}
+    with open('$SOURCES') as f:
+        for line in f:
+            line = line.rstrip('\n')
+            stripped = line.strip()
+            if not stripped or stripped.startswith('#'): continue
+            indent = len(line) - len(line.lstrip())
+            if indent == 0 and stripped.endswith(':'):
+                if current_item and current_genre: data[current_genre].append(current_item)
+                current_genre = stripped[:-1]; data[current_genre] = []; current_item = {}
+            elif indent == 2 and stripped.startswith('- name:'):
+                if current_item and current_genre: data[current_genre].append(current_item)
+                current_item = {'name': stripped.split(':', 1)[1].strip()}
+            elif indent == 4 and stripped.startswith('url:'):
+                current_item['url'] = stripped.split(': ', 1)[1].strip()
+    if current_item and current_genre: data[current_genre].append(current_item)
+for s in data.get('$GENRE', []):
+    if s.get('url') == '$URL':
+        print(s['name']); break
+" 2>/dev/null)
+            fi
         fi
 
         # Try mpv IPC for track title
