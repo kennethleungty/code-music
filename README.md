@@ -1,24 +1,42 @@
-# Music for Claude Code
+# Music for Claude Code, Cursor & OpenCode
 
-Enjoy lovely background music while your Claude Code does the heavy lifting. Lofi, jazz, classical, ambient, electronic — streaming live from the internet, right in your terminal.
+Enjoy lovely background music while your AI coding agent does the heavy lifting. Lofi, jazz, classical, ambient, electronic — streaming live from the internet, right in your terminal.
 
 No setup, no accounts, no ads. Just install and play.
 
 ## Installation
 
+> **Note:** Installation differs by platform. Claude Code and Cursor have built-in plugin marketplaces. OpenCode requires manual setup.
+
 ### Claude Code (Official Marketplace)
 
-```
+```bash
 /plugin install claude-music
 ```
 
-That's it. Start playing with:
+### Cursor
+
+In Cursor's Agent chat:
 
 ```
-/play
+/add-plugin claude-music
 ```
 
-Wonderful lofi music kicks in right away.
+Or search for **claude-music** in the marketplace. [Detailed docs →](docs/README.cursor.md)
+
+### OpenCode
+
+Tell OpenCode to fetch and follow the install instructions:
+
+```text
+Fetch and follow instructions from https://raw.githubusercontent.com/kennethleungty/claude-music/main/.opencode/INSTALL.md
+```
+
+[Detailed docs →](docs/README.opencode.md)
+
+### Verify Installation
+
+Start a new session in your chosen platform and try `/play`. Background music should start streaming immediately. You can also try `/vibe` to let the AI DJ pick a genre based on your current session, or `/help` to see all available commands.
 
 > Don't have an audio player installed? No worries — the plugin detects this and walks you through installing one automatically.
 

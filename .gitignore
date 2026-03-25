@@ -3,9 +3,6 @@ __pycache__/
 *.py[codz]
 *$py.class
 
-# Documentation
-/docs
-
 # C extensions
 *.so
 
