@@ -16,6 +16,7 @@ Start background music. Optionally specify a genre or station name (e.g. `/play 
 Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" play $ARGUMENTS`.
 
 - If `"status": "playing"`: **♪ Now playing {genre} — {station} ♪**
+  - If `takeover` is `true`: prefix with *Switched over from another session{prev_genre ? " (was playing {prev_genre})" : ""} —* before the now-playing line
   - If `genre_reason` is `"preference"`: add *(resumed from your last session)*
   - If `genre_reason` is `"default"`: add *(default genre — use `/play <genre>` to change)*
   - If `genre_reason` is `"requested"`: no extra note needed

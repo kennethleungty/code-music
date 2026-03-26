@@ -19,6 +19,7 @@ POMODORO_PID_FILE="$DATA_DIR/pomodoro.pid"
 POMODORO_STATE_FILE="$DATA_DIR/pomodoro.json"
 STATS_FILE="$DATA_DIR/stats.json"
 LOCK_FILE="$DATA_DIR/controller.lock"
+_TAKEOVER_PREV_GENRE=""
 
 # ============================================================================
 # JSON helpers — try jq, fallback to python3, fallback to sed
@@ -317,20 +318,19 @@ acquire_lock() {
     ensure_data_dir
     exec 9>"$LOCK_FILE"
     if ! flock -n 9; then
-        # Gather info about the session holding the lock
-        local holding_pid=""
-        if [ -f "$PID_FILE" ]; then
-            holding_pid=$(cat "$PID_FILE" 2>/dev/null || echo "")
-        fi
-        local genre=""
+        # Another session is playing — auto-takeover instead of erroring
+        local prev_genre=""
         if [ -f "$STATE_FILE" ]; then
-            genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "")
+            prev_genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "")
         fi
-        local detail="Music is already playing from another code-music session"
-        [ -n "$genre" ] && detail="$detail (genre: $genre)"
-        detail="$detail. Stop it first with 'stop' in that session, or run 'stop' here to force-take control."
-        echo "{\"error\": \"session_locked\", \"message\": \"$detail\", \"holding_pid\": \"${holding_pid:-unknown}\"}"
-        exit 1
+        # Stop the other session's player
+        kill_player
+        kill_orphaned_players
+        # Brief wait for lock release, then force-acquire
+        sleep 0.3
+        flock -w 2 9 2>/dev/null || true
+        # Signal the takeover so the play command can include it in output
+        _TAKEOVER_PREV_GENRE="${prev_genre}"
     fi
 }
 
@@ -737,7 +737,11 @@ do_play() {
     json_set "$PREFS_FILE" "genre" "$genre"
     save_favorite_station "$genre" "$url"
 
-    echo "{\"status\": \"playing\", \"genre\": \"$genre\", \"genre_reason\": \"$genre_reason\", \"station\": \"$stream_name\", \"source\": \"$source\", \"player\": \"$player\"}"
+    local takeover_field=""
+    if [ -n "$_TAKEOVER_PREV_GENRE" ]; then
+        takeover_field=", \"takeover\": true, \"prev_genre\": \"$_TAKEOVER_PREV_GENRE\""
+    fi
+    echo "{\"status\": \"playing\", \"genre\": \"$genre\", \"genre_reason\": \"$genre_reason\", \"station\": \"$stream_name\", \"source\": \"$source\", \"player\": \"$player\"${takeover_field}}"
 }
 
 do_stop() {
