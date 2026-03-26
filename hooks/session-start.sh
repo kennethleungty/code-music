@@ -67,6 +67,22 @@ if [ ! -f "$PREFS_FILE" ]; then
 EOF
 fi
 
+# ---- Reset muted volume on new session ----
+# If the user muted (volume=0) in a previous session, restore to 30
+if command -v python3 &>/dev/null; then
+    python3 -c "
+import json
+with open('$PREFS_FILE') as f:
+    prefs = json.load(f)
+vol = str(prefs.get('volume', '30'))
+if vol == '0':
+    prefs['volume'] = '30'
+    with open('$PREFS_FILE', 'w') as f:
+        json.dump(prefs, f, indent=2)
+        f.write('\n')
+" 2>/dev/null || true
+fi
+
 # ---- Deterministic platform & audio detection ----
 PLATFORM_JSON=$("$PLATFORM_DETECT" 2>/dev/null || echo '{}')
 AUDIO_JSON=$("$SETUP_AUDIO" check 2>/dev/null || echo '{"audio_working": false}')
