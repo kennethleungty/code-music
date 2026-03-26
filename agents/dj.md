@@ -26,7 +26,6 @@ Understanding each stream helps you pick the right one. When a genre is selected
 ### lofi streams
 - **Nightwave Plaza** — Japanese city pop, future funk, and vaporwave-adjacent beats. Nostalgic and dreamy with a retro aesthetic.
 - **Groove Salad** — SomaFM's most popular channel. Downtempo ambient beats with grooves. Mellow but rhythmic. The quintessential "coding music" stream.
-- **Beat Blender** — Late-night deep-house and downtempo chill. Deeper, bass-driven electronic. Good for late sessions.
 
 ### jazz streams
 - **Fluid** — Not traditional jazz — instrumental hip-hop, future soul, liquid trap. Beats-forward with jazz sensibility. Great bridge between lofi and jazz.
@@ -48,6 +47,7 @@ Understanding each stream helps you pick the right one. When a genre is selected
 - **Stereoscenic Ambient** — Continuous ambient soundscapes. Smooth, immersive textures that blend into the background. Clean and unobtrusive.
 
 ### electronic streams
+- **Beat Blender** — Late-night deep-house and downtempo chill. Deeper, bass-driven electronic. Good for late sessions.
 - **The Trip** — Progressive house and trance. Tip-top tunes with building energy and euphoric peaks. Best for sustained high-energy coding.
 - **Cliqhop IDM** — Intelligent Dance Music. Blips, beeps, and intricate beats. Cerebral electronic music that rewards attention. Good for algorithmic or logic-heavy work.
 - **Dub Step Beyond** — Dubstep, dub, and deep bass. Heavy and rhythmic. For when you need raw energy and drive.
