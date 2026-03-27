@@ -15,8 +15,24 @@ No setup, no accounts, no ads. Just install and play.
 
 ### Claude Code (Official Marketplace)
 
+code-music is available in the official Claude Code plugin marketplace:
+
 ```bash
 /plugin install code-music
+```
+
+### Claude Code (via Plugin Marketplace)
+
+In Claude Code, register the marketplace first:
+
+```bash
+/plugin marketplace add kennethleungty/code-music-marketplace
+```
+
+Then install the plugin:
+
+```bash
+/plugin install code-music@code-music-marketplace
 ```
 
 ### Cursor
