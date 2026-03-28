@@ -66,7 +66,9 @@ Each genre has multiple stations. Use `/next` to cycle through them.
 
 ## Installation
 
-In Claude Code, register the marketplace first:
+### Claude Code (via Plugin Marketplace)
+
+Register the marketplace first:
 
 ```bash
 /plugin marketplace add kennethleungty/code-music-marketplace
@@ -77,6 +79,8 @@ Then install the plugin:
 ```bash
 /plugin install code-music@code-music-marketplace
 ```
+
+### Verify Installation
 
 Start a new session and try `/play` or `/vibe`.
 
