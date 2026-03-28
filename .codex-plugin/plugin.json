@@ -1,0 +1,28 @@
+{
+  "name": "code-music",
+  "version": "1.0.3",
+  "description": "Background music for your coding sessions — lofi, jazz, classical, ambient, electronic, and more",
+  "author": {
+    "name": "Kenneth Leung",
+    "url": "https://github.com/kennethleungty"
+  },
+  "homepage": "https://github.com/kennethleungty/code-music",
+  "repository": "https://github.com/kennethleungty/code-music",
+  "license": "MIT",
+  "keywords": ["music", "lofi", "ambient", "coding-music", "background-music", "radio", "focus", "pomodoro"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Code Music",
+    "shortDescription": "Background music for coding sessions",
+    "longDescription": "Stream lofi, jazz, classical, ambient, electronic, synthwave, lounge, and indie music while you code. Includes an AI DJ, Pomodoro timer, and preference learning.",
+    "developerName": "Kenneth Leung",
+    "category": "Productivity",
+    "capabilities": ["Read"],
+    "websiteURL": "https://github.com/kennethleungty/code-music",
+    "defaultPrompt": [
+      "Use Code Music to play some lofi while I code.",
+      "Use Code Music to let the DJ pick music for my session."
+    ],
+    "logo": "./assets/logo.png"
+  }
+}

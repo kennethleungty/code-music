@@ -11,7 +11,7 @@ No setup, no accounts, no ads. Just install and play.
 
 ## Installation
 
-> **Note:** Installation differs by platform. Claude Code and Cursor have built-in plugin marketplaces. OpenCode requires manual setup.
+> **Note:** Installation differs by platform. Claude Code and Cursor have built-in plugin marketplaces. Codex and OpenCode require manual setup.
 
 ### Claude Code (Official Marketplace)
 
@@ -44,6 +44,30 @@ In Cursor's Agent chat:
 ```
 
 Or search for **code-music** in the marketplace. [Detailed docs →](docs/README.cursor.md)
+
+### Codex
+
+Clone the plugin and register it in your personal marketplace:
+
+```bash
+git clone https://github.com/kennethleungty/code-music.git ~/.codex/plugins/code-music
+```
+
+Then add to `~/.agents/plugins/marketplace.json`:
+
+```json
+{
+  "name": "code-music-local",
+  "plugins": [
+    {
+      "name": "code-music",
+      "source": { "source": "local", "path": "./~/.codex/plugins/code-music" }
+    }
+  ]
+}
+```
+
+Restart Codex. [Detailed docs →](docs/README.codex.md)
 
 ### OpenCode
 
