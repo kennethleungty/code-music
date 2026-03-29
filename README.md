@@ -4,9 +4,9 @@
 
 <h2 align="center">Music in your Claude Code Sessions</h2>
 
-Enjoy great background music while Claude Code does the heavy lifting. Lofi, jazz, classical, ambient, and more — streaming live from the internet, right in your terminal.
+Enjoy great music and vibes while Claude Code does the heavy lifting. Lofi, jazz, classical, ambient, and more — streaming live from the internet, right in your coding session.
 
-No setup, no accounts, no ads. Just install and listen.
+No setup, no sign ups, no accounts. Just install the plugin and start listening.
 
 <!-- <p align="center">
   <img src="assets/demo.gif" alt="code-music demo" width="600">
@@ -16,7 +16,7 @@ No setup, no accounts, no ads. Just install and listen.
 
 ```
 /play                # Start playing (ambient genre by default)
-/play jazz           # Play a specific genre
+/play jazz           # Play a specific genre or station name
 /next                # Skip to a different station (same genre)
 /prev                # Go back to the previous station
 /stop                # Stop the music

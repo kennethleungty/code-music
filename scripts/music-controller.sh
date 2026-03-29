@@ -94,6 +94,8 @@ except ImportError:
             current_item = {'name': stripped.split(':', 1)[1].strip()}
         elif indent == 4 and stripped.startswith('url:'):
             current_item['url'] = stripped.split(': ', 1)[1].strip()
+        elif indent == 4 and stripped.startswith('description:'):
+            current_item['description'] = stripped.split(': ', 1)[1].strip()
     if current_item and current_genre:
         data[current_genre].append(current_item)
 $query
@@ -131,10 +133,23 @@ detect_player() {
         cached=$(cat "$cache_file")
         # Validate the cached player still exists
         if [ "$cached" != "none" ] && command -v "$cached" &>/dev/null; then
-            echo "$cached"
-            return 0
+            # Check if a higher-priority player is now available
+            local dominated=false
+            for player in mpv ffplay afplay play; do
+                if [ "$player" = "$cached" ]; then
+                    break
+                fi
+                if command -v "$player" &>/dev/null; then
+                    dominated=true
+                    break
+                fi
+            done
+            if [ "$dominated" = false ]; then
+                echo "$cached"
+                return 0
+            fi
         fi
-        # Cache stale, remove and re-detect
+        # Cache stale or better player available, re-detect
         rm -f "$cache_file"
     fi
 
@@ -1173,6 +1188,8 @@ except ImportError:
             current_item = {'name': stripped.split(':', 1)[1].strip()}
         elif indent == 4 and stripped.startswith('url:'):
             current_item['url'] = stripped.split(': ', 1)[1].strip()
+        elif indent == 4 and stripped.startswith('description:'):
+            current_item['description'] = stripped.split(': ', 1)[1].strip()
     if current_item and current_genre:
         sources.setdefault(current_genre, []).append(current_item)
 
@@ -1380,7 +1397,7 @@ case "${1:-help}" in
     volume-adjust)  do_volume_adjust "${2:-}" ;;
     full-stats)     do_full_stats ;;
     full-prefs)     do_full_prefs ;;
-    list-genres)        do_list_genres ;;
+    list|list-genres)   do_list_genres ;;
     pomodoro)           do_pomodoro "${2:-25}" "${3:-}" ;;
     pomodoro-status)    do_pomodoro_status ;;
     pomodoro-stop)      do_pomodoro_stop ;;
@@ -1406,7 +1423,8 @@ Commands:
   full-stats             Session status + lifetime stats combined
   full-prefs             Prefs with station names resolved
   load-stats             Show lifetime listening stats
-  list-genres            List available genres
+  list                   List available genres
+  list-genres            Alias for list
 USAGE
         ;;
 esac
