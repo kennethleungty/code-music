@@ -97,8 +97,7 @@ Start a new session and try `/play` or `/vibe`.
 
 The plugin auto-detects your platform and available audio players. If nothing is installed, it offers to set one up for you.
 
-<details>
-<summary><strong>All Commands</strong></summary>
+### All Commands
 
 | Command | What it does |
 |---------|-------------|
@@ -122,8 +121,6 @@ The plugin auto-detects your platform and available audio players. If nothing is
 | `/sources` | View, add, edit, or remove streams |
 | `/feedback` | Report a bug or share feedback on GitHub |
 | `/help` | Show help |
-
-</details>
 
 <details>
 <summary><strong>Focus Timer</strong></summary>
