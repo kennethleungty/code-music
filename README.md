@@ -164,6 +164,12 @@ Want to add your own stations? Use `/sources` to manage streams interactively.
 
 </details>
 
+## Contributing
+
+Know a great stream that belongs here? We'd love your help growing the station library. Musicians, DJs, radio nerds, and anyone with good taste — open an issue or PR with your recommendation. Include the stream URL, a short description, and which genre it fits best.
+
+All streams should be free, ad-free, and publicly accessible.
+
 ## Coming Soon
 
 **Spotify Integration** — Connect your Spotify account and play your own playlists directly through the plugin.
