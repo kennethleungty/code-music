@@ -1,105 +1,167 @@
 lofi:
-  - name: Nightwave Plaza
-    url: http://radio.plaza.one/mp3
-    description: 24/7 vaporwave and future funk with retro aesthetics
-  - name: SomaFM - Groove Salad
-    url: http://ice2.somafm.com/groovesalad-128-mp3
-    description: A nicely chilled plate of ambient/downtempo beats and grooves
+  stations:
+    - name: Lofi Girl
+      url: https://www.youtube.com/watch?v=jfKfPfyJRdk
+      description: 24/7 lofi hip hop radio — beats to relax/study to. The iconic livestream, perfect for calm focus sessions.
+      tags: [calm, focus, studying, relaxed, chill]
+    - name: Chillhop Music
+      url: https://www.youtube.com/watch?v=5yx6BWlEVcY
+      description: Jazzy & lofi hip hop beats with a warm, coffee-shop feel. Mellow but groovy.
+      tags: [calm, focus, warm, coffee-shop, productive]
+    - name: SomaFM - Groove Salad
+      url: http://ice2.somafm.com/groovesalad-128-mp3
+      description: A nicely chilled plate of ambient/downtempo beats and grooves. SomaFM's most popular channel — the quintessential coding music stream.
+      tags: [calm, focus, debugging, testing, devops, chill, coding]
 
 jazz:
-  - name: SomaFM - Fluid
-    url: http://ice4.somafm.com/fluid-128-mp3
-    description: Instrumental hip-hop, future soul, and liquid trap
-  - name: SomaFM - Bossa Beyond
-    url: http://ice4.somafm.com/bossa-128-mp3
-    description: Silky-smooth Brazilian bossa nova, samba, and beyond
-  - name: WDCB Jazz
-    url: http://wdcb-ice.streamguys.org:80/wdcb128
-    description: Chicago's home for jazz, listener-supported public radio
+  stations:
+    - name: Coffee Shop Radio
+      url: https://www.youtube.com/watch?v=VMAPTo7RVCo
+      description: 24/7 coffee shop jazz radio — relaxing jazz for work & study. Warm and inviting, like background music at your favorite cafe.
+      tags: [warm, relaxed, productive, coffee-shop, studying]
+    - name: SomaFM - Fluid
+      url: http://ice4.somafm.com/fluid-128-mp3
+      description: Instrumental hip-hop, future soul, and liquid trap. Beats-forward with jazz sensibility. Great bridge between lofi and jazz.
+      tags: [creative, building, flowing, modern, beats]
+    - name: SomaFM - Bossa Beyond
+      url: http://ice4.somafm.com/bossa-128-mp3
+      description: Silky-smooth Brazilian bossa nova, samba, and beyond. Warm, laid-back, sophisticated. Best for relaxed but productive work.
+      tags: [relaxed, sophisticated, warm, productive, elegant]
+    - name: WDCB Jazz
+      url: http://wdcb-ice.streamguys.org:80/wdcb128
+      description: Chicago's home for jazz — listener-supported public radio. Straight-ahead jazz, standards, and contemporary jazz with professional curation.
+      tags: [traditional, classic, refactoring, building, focus]
 
 classical:
-  - name: All Classical Portland
-    url: http://allclassical-ice.streamguys.com/ac96kmp3
-    description: Portland's independent community-funded classical music station
-  - name: WWFM The Classical Network
-    url: http://wwfm.streamguys1.com/live
-    description: Classical from the Middle Ages to contemporary, from New Jersey
-  - name: France Musique
-    url: http://direct.francemusique.fr/live/francemusique-midfi.mp3
-    description: France's national public radio devoted to classical music
-  - name: IPR Classical
-    url: http://classical-stream.iowapublicradio.org/Classical.mp3
-    description: Iowa Public Radio's 24-hour classical music stream
+  stations:
+    - name: Classical Radio
+      url: https://www.youtube.com/watch?v=mIYzp5rcTvU
+      description: 24/7 classical music radio — relaxing orchestral & piano. A reliable YouTube livestream for sustained deep focus.
+      tags: [focus, deep-work, studying, concentration, relaxed]
+    - name: All Classical Portland
+      url: http://allclassical-ice.streamguys.com/ac96kmp3
+      description: Portland's independent community-funded classical music station. Well-curated, broad repertoire, professional presentation.
+      tags: [focus, code-review, research, contemplative, curated]
+    - name: WWFM The Classical Network
+      url: http://wwfm.streamguys1.com/live
+      description: Classical from the Middle Ages to contemporary, from New Jersey. Deep library with good variety across eras.
+      tags: [deep-work, research, docs, contemplative, variety]
+    - name: France Musique
+      url: http://direct.francemusique.fr/live/francemusique-midfi.mp3
+      description: France's national public radio devoted to classical music. European classical tradition with excellent orchestral programming.
+      tags: [orchestral, contemplative, elegant, deep-work, focus]
+    - name: IPR Classical
+      url: http://classical-stream.iowapublicradio.org/Classical.mp3
+      description: Iowa Public Radio's 24-hour classical music stream. Accessible programming, good for sustained focus.
+      tags: [focus, concentration, accessible, steady, calm]
 
 ambient:
-  - name: SomaFM - Drone Zone
-    url: http://ice2.somafm.com/dronezone-128-mp3
-    description: Served best chilled, atmospheric textures with minimal beats
-  - name: SomaFM - Deep Space One
-    url: http://ice4.somafm.com/deepspaceone-128-mp3
-    description: Deep ambient electronic and space music for inner and outer exploration
-  - name: SomaFM - Mission Control
-    url: http://ice2.somafm.com/missioncontrol-128-mp3
-    description: Ambient music mixed with NASA mission audio, celebrating space exploration
-  - name: SomaFM - Dark Zone
-    url: http://ice2.somafm.com/darkzone-128-mp3
-    description: The darker side of deep ambient, music for staring into the abyss
-  - name: Stereoscenic Ambient
-    url: http://radio.stereoscenic.com/asp-h
-    description: Tranquil and deep ambient, lush environments painted with sound
+  stations:
+    - name: Relaxing Ambient
+      url: https://www.youtube.com/watch?v=S_MOd40zlYU
+      description: 24/7 ambient relaxation radio — calm atmospheric music. A reliable YouTube livestream for quiet background ambience.
+      tags: [calm, relaxed, background, quiet, gentle]
+    - name: SomaFM - Drone Zone
+      url: http://ice2.somafm.com/dronezone-128-mp3
+      description: Served best chilled — atmospheric textures with minimal beats. Very spa-like, meditative, zero distractions. Best for deep creative work or maximum calm.
+      tags: [zen, meditative, deep-work, brainstorming, calm, minimal]
+    - name: SomaFM - Deep Space One
+      url: http://ice4.somafm.com/deepspaceone-128-mp3
+      description: Deep ambient electronic and space music for inner and outer exploration. More musical than Drone Zone with melodic elements and occasional structure.
+      tags: [creative, inspired, exploration, thinking, melodic]
+    - name: SomaFM - Mission Control
+      url: http://ice2.somafm.com/missioncontrol-128-mp3
+      description: Ambient music mixed with NASA mission audio — Houston comms blended with ambient music. Inspiring for anything space or exploration themed.
+      tags: [inspired, exploration, unique, space, building]
+    - name: SomaFM - Dark Zone
+      url: http://ice2.somafm.com/darkzone-128-mp3
+      description: The darker side of deep ambient — brooding, mysterious textures. For when you want ambient with more weight and atmosphere. Good for intense focus sessions.
+      tags: [dark, intense, focus, brooding, deep-work]
+    - name: Stereoscenic Ambient
+      url: http://radio.stereoscenic.com/asp-h
+      description: Tranquil and deep ambient — lush environments painted with sound. Continuous soundscapes that blend into the background, clean and unobtrusive.
+      tags: [background, calm, unobtrusive, planning, quiet]
 
 electronic:
-  - name: SomaFM - Beat Blender
-    url: http://ice2.somafm.com/beatblender-128-mp3
-    description: A late night blend of deep-house and downtempo chill
-  - name: SomaFM - The Trip
-    url: http://ice2.somafm.com/thetrip-128-mp3
-    description: Progressive house and trance, tip top tunes
-  - name: SomaFM - Cliqhop IDM
-    url: http://ice2.somafm.com/cliqhop-128-mp3
-    description: Blips and beeps backed mostly with beats, Intelligent Dance Music
-  - name: SomaFM - Dub Step Beyond
-    url: http://ice2.somafm.com/dubstep-128-mp3
-    description: Dubstep, dub, and deep bass; may damage speakers at high volume
-  - name: SomaFM - Suburbs of Goa
-    url: http://ice2.somafm.com/suburbsofgoa-128-mp3
-    description: Desi-influenced Asian world beats and beyond
-  - name: SomaFM - Groove Salad Classic
-    url: http://ice2.somafm.com/gsclassic-128-mp3
-    description: Early 2000s version of ambient/downtempo beats and grooves
+  stations:
+    - name: SomaFM - Beat Blender
+      url: http://ice2.somafm.com/beatblender-128-mp3
+      description: A late night blend of deep-house and downtempo chill. Deeper, bass-driven electronic. Good for late sessions.
+      tags: [late-night, chill, deep, bass, steady]
+    - name: SomaFM - The Trip
+      url: http://ice2.somafm.com/thetrip-128-mp3
+      description: Progressive house and trance — tip-top tunes with building energy and euphoric peaks. Best for sustained high-energy coding.
+      tags: [high-energy, sprint, shipping, excited, pumped, driving]
+    - name: SomaFM - Cliqhop IDM
+      url: http://ice2.somafm.com/cliqhop-128-mp3
+      description: Blips, beeps, and intricate beats — Intelligent Dance Music. Cerebral electronic that rewards attention. Good for algorithmic or logic-heavy work.
+      tags: [cerebral, algorithms, logic, intricate, focus]
+    - name: SomaFM - Dub Step Beyond
+      url: http://ice2.somafm.com/dubstep-128-mp3
+      description: Dubstep, dub, and deep bass — heavy and rhythmic. For when you need raw energy and drive. May damage speakers at high volume.
+      tags: [energy, intense, heavy, driving, pumped]
+    - name: SomaFM - Suburbs of Goa
+      url: http://ice2.somafm.com/suburbsofgoa-128-mp3
+      description: Desi-influenced Asian world beats and beyond. Trancey, hypnotic grooves with Indian and Middle Eastern flavors. Great for getting into a rhythmic flow.
+      tags: [flow, hypnotic, rhythmic, trance, world]
+    - name: SomaFM - Groove Salad Classic
+      url: http://ice2.somafm.com/gsclassic-128-mp3
+      description: The early 2000s version of ambient/downtempo beats and grooves. Slightly rawer, more trip-hop influenced. Nostalgia factor.
+      tags: [nostalgic, chill, retro, trip-hop, relaxed]
 
 synthwave:
-  - name: SomaFM - Synphaera
-    url: http://ice2.somafm.com/synphaera-128-mp3
-    description: Modern electronic ambient and space music
-  - name: SomaFM - Vaporwaves
-    url: http://ice2.somafm.com/vaporwaves-128-mp3
-    description: All vaporwave, all the time
-  - name: SomaFM - DEF CON Radio
-    url: http://ice2.somafm.com/defcon-128-mp3
-    description: Music for hacking, the DEF CON year-round channel
-  - name: SomaFM - Space Station Soma
-    url: http://ice4.somafm.com/spacestation-128-mp3
-    description: Spaced-out ambient and mid-tempo electronica
+  stations:
+    - name: Synthwave Radio
+      url: https://www.youtube.com/watch?v=4xDzrJKXOOY
+      description: Synthwave Radio — Beats to Chill/Game To. Retro-futuristic, 80s-inspired synths. A YouTube livestream for neon-lit late night sessions.
+      tags: [retro, late-night, gaming, chill, 80s]
+    - name: Nightwave Plaza
+      url: http://radio.plaza.one/mp3
+      description: 24/7 vaporwave and future funk with retro aesthetics. Nostalgic and dreamy, Japanese city pop vibes.
+      tags: [nostalgic, retro, dreamy, late-night, vaporwave]
+    - name: SomaFM - Synphaera
+      url: http://ice2.somafm.com/synphaera-128-mp3
+      description: Modern electronic ambient and space music. Polished, contemporary ambient-leaning compositions with a retro-futuristic edge.
+      tags: [ambient, modern, polished, contemplative, space]
+    # - name: SomaFM - Vaporwaves
+    #   url: http://ice2.somafm.com/vaporwaves-128-mp3
+    #   description: All vaporwave, all the time. Retro-futuristic, slowed-down samples, dreamy synths. The chillwave/vaporwave aesthetic in pure form.
+    #   tags: [nostalgic, dreamy, retro, aesthetic, chill]
+    # - name: SomaFM - DEF CON Radio
+    #   url: http://ice2.somafm.com/defcon-128-mp3
+    #   description: Music for hacking — the DEF CON year-round channel. Electronic, industrial, and high-energy. Perfect for late night coding and hacking sessions.
+    #   tags: [hacking, security, high-energy, intense, cyberpunk]
+    # - name: SomaFM - Space Station Soma
+    #   url: http://ice4.somafm.com/spacestation-128-mp3
+    #   description: Spaced-out ambient and mid-tempo electronica. More rhythmic and driving than pure ambient. Good for sustained late-night sessions.
+    #   tags: [late-night, steady, driving, space, rhythmic]
 
 lounge:
-  - name: SomaFM - Secret Agent
-    url: http://ice2.somafm.com/secretagent-128-mp3
-    description: Soundtrack for your stylish, mysterious, dangerous life
-  - name: SomaFM - Illinois Street Lounge
-    url: http://ice2.somafm.com/illstreet-128-mp3
-    description: Classic bachelor pad, playful exotica, and vintage lounge
+  stations:
+    - name: SomaFM - Secret Agent
+      url: http://ice2.somafm.com/secretagent-128-mp3
+      description: Soundtrack for your stylish, mysterious, dangerous life. Cinematic downtempo with a spy-movie feel. Sophisticated and cool.
+      tags: [sophisticated, presenting, demoing, cinematic, stylish]
+    - name: SomaFM - Illinois Street Lounge
+      url: http://ice2.somafm.com/illstreet-128-mp3
+      description: Classic bachelor pad, playful exotica, and vintage lounge. Mid-century modern vibes — light and fun.
+      tags: [playful, light, fun, retro, elegant]
 
 indie:
-  - name: SomaFM - Lush
-    url: http://ice2.somafm.com/lush-128-mp3
-    description: Sensuous and mellow female vocals, many with electronic influence
-  - name: SomaFM - Indie Pop Rocks
-    url: http://ice2.somafm.com/indiepop-128-mp3
-    description: New and classic favorite indie pop tracks
-  - name: SomaFM - Folk Forward
-    url: http://ice2.somafm.com/folkfwd-128-mp3
-    description: Indie folk, alt-folk, and the occasional folk classics
-  - name: SomaFM - BAGeL Radio
-    url: http://ice2.somafm.com/bagel-128-mp3
-    description: Eclectic alternative, post-punk, indie rock, and noise pop
+  stations:
+    - name: SomaFM - Lush
+      url: http://ice2.somafm.com/lush-128-mp3
+      description: Sensuous and mellow female vocals, many with electronic influence. More melodic and song-structured. Good when you want something with a human touch.
+      tags: [mellow, melodic, warm, human, emotional]
+    - name: SomaFM - Indie Pop Rocks
+      url: http://ice2.somafm.com/indiepop-128-mp3
+      description: New and classic favorite indie pop tracks. Upbeat with catchy hooks and feel-good energy. Perfect for lighter creative work and docs.
+      tags: [upbeat, cheerful, docs, light, creative-writing]
+    - name: SomaFM - Folk Forward
+      url: http://ice2.somafm.com/folkfwd-128-mp3
+      description: Indie folk, alt-folk, and the occasional folk classics. Warm, earthy, and intimate. Great for writing and reflective work.
+      tags: [warm, writing, reflective, earthy, intimate]
+    - name: SomaFM - BAGeL Radio
+      url: http://ice2.somafm.com/bagel-128-mp3
+      description: Eclectic alternative, post-punk, indie rock, and noise pop. More adventurous and unpredictable. For when you want variety and surprise.
+      tags: [adventurous, variety, energetic, surprising, bored]

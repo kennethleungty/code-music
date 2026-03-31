@@ -15,6 +15,8 @@ Go back to the previous radio station.
 
 Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" prev`.
 
-- If `"status": "playing"`: **♪ Back to {station} ({genre}) ♪**
+The JSON response includes `genre` and `station` fields. Use both in your reply:
+
+- If `"status": "playing"`: **♪ Now playing {genre} — {station} ♪**
 - If `"status": "error"`: **♪ No previous station — try `/next` first, then `/prev` to go back. ♪**
 - If nothing playing: **♪ Nothing playing — try `/play` to start. ♪**

@@ -21,5 +21,6 @@ Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" play $ARGUMENTS`.
   - If `genre_reason` is `"default"`: add *(default genre — use `/play <genre>` to change)*
   - If `genre_reason` is `"requested"`: no extra note needed
 - If error about no audio player: run the `install_command` (if `has_sudo` is true) or `nosudo_hint` (if false) from the JSON, then retry play automatically.
+- If error about both primary and fallback failing: tell the user and suggest trying `/next` or a different genre.
 
 Genres: lofi, jazz, classical, ambient, electronic, synthwave, lounge, indie. Also accepts station names (e.g. "groove salad").

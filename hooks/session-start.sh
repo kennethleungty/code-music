@@ -110,15 +110,43 @@ PLAYER=$("$CONTROLLER" detect-player 2>/dev/null || echo "none")
 MISSING=""
 INSTALL_HINT=""
 
-# Missing player?
-if [ "$PLAYER" = "none" ]; then
-    MISSING="player"
-    HAS_SUDO=false
-    if sudo -n true 2>/dev/null; then
-        HAS_SUDO=true
+# Check sudo once for all install hints
+HAS_SUDO=false
+if sudo -n true 2>/dev/null; then
+    HAS_SUDO=true
+fi
+
+# ---- Auto-install mpv if not available (preferred player for YouTube support) ----
+if ! command -v mpv &>/dev/null; then
+    MPV_INSTALLED=false
+    if command -v brew &>/dev/null; then
+        brew install mpv &>/dev/null && MPV_INSTALLED=true
+    elif command -v conda &>/dev/null; then
+        conda install -y -c conda-forge mpv &>/dev/null && MPV_INSTALLED=true
+    elif command -v nix-env &>/dev/null; then
+        nix-env -iA nixpkgs.mpv &>/dev/null && MPV_INSTALLED=true
+    elif [ "$HAS_SUDO" = true ]; then
+        case "$PLATFORM_PKG" in
+            apt)    sudo apt-get update &>/dev/null && sudo apt-get install -y mpv &>/dev/null && MPV_INSTALLED=true ;;
+            dnf)    sudo dnf install -y mpv &>/dev/null && MPV_INSTALLED=true ;;
+            pacman) sudo pacman -S --noconfirm mpv &>/dev/null && MPV_INSTALLED=true ;;
+            apk)    sudo apk add mpv &>/dev/null && MPV_INSTALLED=true ;;
+            zypper) sudo zypper install -y mpv &>/dev/null && MPV_INSTALLED=true ;;
+        esac
     fi
 
-    # Prefer no-sudo methods, then fall back to sudo if available
+    if [ "$MPV_INSTALLED" = true ]; then
+        # Clear player cache so mpv gets detected as the new default
+        rm -f "$DATA_DIR/detected_player.cache"
+        PLAYER=$("$CONTROLLER" detect-player 2>/dev/null || echo "$PLAYER")
+    fi
+fi
+
+# Missing player? (only if mpv auto-install failed AND no other player exists)
+if [ "$PLAYER" = "none" ]; then
+    MISSING="player"
+
+    # Generate install hints for Claude to relay to the user
     if command -v brew &>/dev/null; then
         INSTALL_HINT="brew install mpv"
     elif command -v conda &>/dev/null; then
@@ -144,6 +172,48 @@ if [ "$PLAYER" = "none" ]; then
             choco)  INSTALL_HINT="choco install mpv" ;;
             *)      INSTALL_HINT="Install mpv from https://mpv.io/installation/ (or ask an admin to run: sudo apt install -y mpv)" ;;
         esac
+    fi
+fi
+
+# Missing yt-dlp? (needed for YouTube stream support)
+# Auto-install at session start so /play doesn't have to wait
+PLATFORM_YTDLP=$(read_json "$PLATFORM_JSON" has_ytdlp False)
+YTDLP_INSTALL_HINT=""
+if [ "$PLATFORM_YTDLP" = "False" ] && ! command -v yt-dlp &>/dev/null; then
+    # Try to install yt-dlp automatically (silent, best-effort)
+    YTDLP_INSTALLED=false
+    if command -v pipx &>/dev/null; then
+        pipx install yt-dlp &>/dev/null && YTDLP_INSTALLED=true
+    elif command -v pip3 &>/dev/null; then
+        pip3 install --user yt-dlp &>/dev/null && YTDLP_INSTALLED=true
+    elif command -v pip &>/dev/null; then
+        pip install --user yt-dlp &>/dev/null && YTDLP_INSTALLED=true
+    elif command -v brew &>/dev/null; then
+        brew install yt-dlp &>/dev/null && YTDLP_INSTALLED=true
+    elif [ "$HAS_SUDO" = true ]; then
+        case "$PLATFORM_PKG" in
+            apt)    sudo apt update &>/dev/null && sudo apt install -y yt-dlp &>/dev/null && YTDLP_INSTALLED=true ;;
+            dnf)    sudo dnf install -y yt-dlp &>/dev/null && YTDLP_INSTALLED=true ;;
+            pacman) sudo pacman -S --noconfirm yt-dlp &>/dev/null && YTDLP_INSTALLED=true ;;
+        esac
+    fi
+
+    # If auto-install failed, fall back to hint for Claude
+    if [ "$YTDLP_INSTALLED" = false ] && ! command -v yt-dlp &>/dev/null; then
+        if [ -n "$MISSING" ]; then
+            MISSING="$MISSING,yt-dlp"
+        else
+            MISSING="yt-dlp"
+        fi
+        if command -v pipx &>/dev/null; then
+            YTDLP_INSTALL_HINT="pipx install yt-dlp"
+        elif command -v pip3 &>/dev/null; then
+            YTDLP_INSTALL_HINT="pip3 install yt-dlp"
+        elif command -v brew &>/dev/null; then
+            YTDLP_INSTALL_HINT="brew install yt-dlp"
+        else
+            YTDLP_INSTALL_HINT="pip3 install --user yt-dlp"
+        fi
     fi
 fi
 
@@ -199,6 +269,10 @@ else
         else
             CONTEXT="$CONTEXT User does NOT have sudo — if they ask to play music, automatically download a static ffplay binary to ~/.local/bin (no root needed) and start playback. No soundcheck agent, no asking — just do it."
         fi
+    fi
+    if [[ "$MISSING" == *"yt-dlp"* ]]; then
+        CONTEXT="$CONTEXT yt-dlp is not installed (needed for YouTube streams). Install command: $YTDLP_INSTALL_HINT"
+        CONTEXT="$CONTEXT When the user tries to play music, install yt-dlp automatically before starting playback — no need to ask."
     fi
     if [[ "$MISSING" == *"audio"* ]] && [ "$PLATFORM_WSL" = "True" ]; then
         CONTEXT="$CONTEXT WSL2 audio output is not set up yet — dispatch the soundcheck agent for WSL audio configuration help."

@@ -81,11 +81,13 @@ try:
 except ImportError:
     with open('$STATIONS_FILE') as f:
         text = f.read()
-    # Minimal YAML subset parser for our flat structure
-    # Format: genre: \n  - name: X \n    url: Y
+    # Minimal YAML subset parser for our structure
+    # Format: genre: \n  stations: \n    - name: X \n      url: Y \n      description: ... \n      tags: [...]
+    # Normalizes to same shape as yaml.safe_load: {genre: {stations: [...]}}
     data = {}
     current_genre = None
     current_item = {}
+    in_stations = False
     for line in text.split('\n'):
         stripped = line.strip()
         if not stripped or stripped.startswith('#'):
@@ -93,20 +95,26 @@ except ImportError:
         indent = len(line) - len(line.lstrip())
         if indent == 0 and stripped.endswith(':'):
             if current_item and current_genre:
-                data[current_genre].append(current_item)
+                data[current_genre].setdefault('stations', []).append(current_item)
                 current_item = {}
             current_genre = stripped[:-1]
-            data[current_genre] = []
-        elif indent == 2 and stripped.startswith('- name:'):
+            data[current_genre] = {'stations': []}
+            in_stations = False
+        elif indent == 2 and stripped.startswith('stations:'):
+            in_stations = True
+        elif in_stations and indent == 4 and stripped.startswith('- name:'):
             if current_item and current_genre:
-                data[current_genre].append(current_item)
+                data[current_genre]['stations'].append(current_item)
             current_item = {'name': stripped.split(':', 1)[1].strip()}
-        elif indent == 4 and stripped.startswith('url:'):
+        elif in_stations and indent == 6 and stripped.startswith('url:'):
             current_item['url'] = stripped.split(': ', 1)[1].strip()
-        elif indent == 4 and stripped.startswith('description:'):
+        elif in_stations and indent == 6 and stripped.startswith('description:'):
             current_item['description'] = stripped.split(': ', 1)[1].strip()
+        elif in_stations and indent == 6 and stripped.startswith('tags:'):
+            tag_str = stripped.split(':', 1)[1].strip().strip('[]')
+            current_item['tags'] = [t.strip() for t in tag_str.split(',') if t.strip()]
     if current_item and current_genre:
-        data[current_genre].append(current_item)
+        data[current_genre].setdefault('stations', []).append(current_item)
 $query
 " 2>/dev/null
 }
@@ -205,6 +213,49 @@ is_wsl() {
     grep -qi microsoft /proc/version 2>/dev/null
 }
 
+is_youtube_url() {
+    local url="$1"
+    case "$url" in
+        *youtube.com/watch*|*youtu.be/*|*youtube.com/live/*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+install_ytdlp() {
+    # Auto-install yt-dlp (needed for YouTube stream extraction via mpv)
+    # Try pip methods first (no root needed), then package managers
+    if command -v pipx &>/dev/null; then
+        pipx install yt-dlp &>/dev/null && return 0
+    fi
+    if command -v pip3 &>/dev/null; then
+        pip3 install --user yt-dlp &>/dev/null && return 0
+    fi
+    if command -v pip &>/dev/null; then
+        pip install --user yt-dlp &>/dev/null && return 0
+    fi
+    if command -v brew &>/dev/null; then
+        brew install yt-dlp &>/dev/null && return 0
+    fi
+    if sudo -n true 2>/dev/null; then
+        if command -v apt &>/dev/null; then
+            sudo apt update -qq && sudo apt install -y -qq yt-dlp &>/dev/null && return 0
+        elif command -v dnf &>/dev/null; then
+            sudo dnf install -y -q yt-dlp &>/dev/null && return 0
+        elif command -v pacman &>/dev/null; then
+            sudo pacman -S --noconfirm yt-dlp &>/dev/null && return 0
+        fi
+    fi
+    # Final fallback: direct binary download
+    local bin_dir="$HOME/.local/bin"
+    mkdir -p "$bin_dir"
+    if curl -sL "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" -o "$bin_dir/yt-dlp" 2>/dev/null; then
+        chmod +x "$bin_dir/yt-dlp"
+        export PATH="$bin_dir:$PATH"
+        return 0
+    fi
+    return 1
+}
+
 normalize_volume() {
     local vol="$1" player="$2"
     case "$player" in
@@ -273,7 +324,7 @@ start_watchdog() {
     fi
 
     (
-        while sleep 5; do
+        while sleep 2; do
             # Player already dead — clean up and exit
             if ! kill -0 "$player_pid" 2>/dev/null; then
                 rm -f "$PID_FILE" "$WATCHDOG_PID_FILE"
@@ -287,6 +338,11 @@ start_watchdog() {
                 rm -f "$PID_FILE" "$WATCHDOG_PID_FILE" "$MPV_SOCK"
                 exit 0
             fi
+            # Note: we intentionally do NOT monitor the parent process ($PPID).
+            # When Claude Code's Bash tool runs this script, $PPID is the
+            # ephemeral bash process that exits as soon as the script returns,
+            # which would kill the player after ~2 seconds. The TTY check above
+            # already handles the "terminal closed" case.
         done
     ) &>/dev/null &
     echo $! > "$WATCHDOG_PID_FILE"
@@ -319,7 +375,7 @@ kill_orphaned_players() {
     # sessions that aren't tracked by the current PID file (e.g. after a rename
     # or if the PID file was lost). This prevents overlapping audio.
     local pattern
-    for pattern in 'music-controller\.sh play' 'somafm\.com' 'deepspaceone'; do
+    for pattern in 'music-controller\.sh play' 'somafm\.com' 'deepspaceone' 'youtube\.com/watch' 'yt-dlp.*youtube'; do
         local pids
         pids=$(pgrep -f "$pattern" 2>/dev/null || true)
         for p in $pids; do
@@ -428,7 +484,9 @@ get_stream_url() {
     fi
     yaml_query "
 import random
-streams = data.get('$genre', [])
+genre_data = data.get('$genre', {})
+streams = genre_data.get('stations', genre_data) if isinstance(genre_data, dict) else genre_data
+if not isinstance(streams, list): streams = []
 prefer_http = '$prefer_http' == 'true'
 exclude_url = '$exclude_url'
 if streams:
@@ -453,7 +511,10 @@ get_stream_name() {
     fi
     local name
     name=$(yaml_query "
-for s in data.get('$genre', []):
+genre_data = data.get('$genre', {})
+streams = genre_data.get('stations', genre_data) if isinstance(genre_data, dict) else genre_data
+if not isinstance(streams, list): streams = []
+for s in streams:
     if s['url'] == '$url':
         print(s['name'])
         break
@@ -474,7 +535,9 @@ get_stream_url_and_name() {
     fi
     yaml_query "
 import random
-streams = data.get('$genre', [])
+genre_data = data.get('$genre', {})
+streams = genre_data.get('stations', genre_data) if isinstance(genre_data, dict) else genre_data
+if not isinstance(streams, list): streams = []
 prefer_http = '$prefer_http' == 'true'
 exclude_url = '$exclude_url'
 if streams:
@@ -517,7 +580,9 @@ find_station_by_name() {
     [ ! -f "$STATIONS_FILE" ] && return 1
     yaml_query "
 search = '''$search'''.lower()
-for genre, streams in data.items():
+for genre, genre_data in data.items():
+    streams = genre_data.get('stations', genre_data) if isinstance(genre_data, dict) else genre_data
+    if not isinstance(streams, list): streams = []
     for s in streams:
         if search in s['name'].lower():
             print(genre + '|' + s['url'] + '|' + s['name'])
@@ -625,19 +690,32 @@ do_play() {
         url="$force_url"
         stream_name="$force_station"
     else
-        # Single YAML parse to get both URL and station name
-        local url_and_name
-        url_and_name=$(get_stream_url_and_name "$genre" "$prefer_http" "$exclude_url" 2>/dev/null || echo "")
-        if [ -n "$url_and_name" ]; then
-            url="${url_and_name%%|*}"
-            stream_name="${url_and_name#*|}"
+        # Single YAML parse to get URL and station name
+        local url_and_meta
+        url_and_meta=$(get_stream_url_and_name "$genre" "$prefer_http" "$exclude_url" 2>/dev/null || echo "")
+        if [ -n "$url_and_meta" ]; then
+            url=$(echo "$url_and_meta" | cut -d'|' -f1)
+            stream_name=$(echo "$url_and_meta" | cut -d'|' -f2)
         fi
     fi
 
     if [ -n "$url" ]; then
         source="stream"
-        # Skip blocking reachability check — let the player handle dead streams.
-        # Players (mpv/ffplay) fail fast on unreachable URLs, avoiding a 3s curl delay.
+        # YouTube URLs require yt-dlp — auto-install if missing
+        if is_youtube_url "$url" && ! command -v yt-dlp &>/dev/null; then
+            install_ytdlp
+        fi
+        # For non-mpv players, extract the direct audio URL via yt-dlp
+        # (mpv handles yt-dlp internally, but ffplay/others need the raw stream URL)
+        if is_youtube_url "$url" && [ "$player" != "mpv" ] && [ "$player" != "mpv.exe" ]; then
+            if command -v yt-dlp &>/dev/null; then
+                local direct_url
+                direct_url=$(yt-dlp --no-warnings -f "bestaudio/worst" --get-url "$url" 2>/dev/null || echo "")
+                if [ -n "$direct_url" ]; then
+                    url="$direct_url"
+                fi
+            fi
+        fi
     else
         # Fallback to local file
         url=$(get_fallback_file "$genre" 2>/dev/null || echo "")
@@ -751,6 +829,69 @@ do_play() {
             pid=$!
             ;;
     esac
+
+    # Health check: verify the player is still alive after a brief startup window.
+    # If the stream fails, auto-retry with a different random station in the same genre.
+    local used_fallback=false
+    if [ "$source" = "stream" ]; then
+        # Give the player a moment to start
+        # Note: for non-mpv players, YouTube URLs are already extracted via yt-dlp
+        # so the delay is mainly for stream connection, not extraction
+        local health_delay=3
+        if is_youtube_url "$url" && { [ "$player" = "mpv" ] || [ "$player" = "mpv.exe" ]; }; then
+            health_delay=8  # mpv does its own yt-dlp extraction
+        fi
+        sleep "$health_delay"
+        if ! kill -0 "$pid" 2>/dev/null; then
+            # Player died — try another random station in the same genre (excluding the failed URL)
+            local retry_meta
+            retry_meta=$(get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || echo "")
+            if [ -n "$retry_meta" ]; then
+                url=$(echo "$retry_meta" | cut -d'|' -f1)
+                stream_name=$(echo "$retry_meta" | cut -d'|' -f2)
+                used_fallback=true
+
+                # Extract direct URL for YouTube streams on non-mpv players
+                if is_youtube_url "$url" && [ "$player" != "mpv" ] && [ "$player" != "mpv.exe" ]; then
+                    if command -v yt-dlp &>/dev/null; then
+                        local retry_direct_url
+                        retry_direct_url=$(yt-dlp --no-warnings -f "bestaudio[ext=m4a]/bestaudio" --get-url "$url" 2>/dev/null || echo "")
+                        if [ -n "$retry_direct_url" ]; then
+                            url="$retry_direct_url"
+                        fi
+                    fi
+                fi
+
+                # Re-launch player with fallback URL
+                case "$player" in
+                    mpv)
+                        local vol_arg="$volume"
+                        nohup mpv --no-video --really-quiet --volume="$vol_arg" --input-ipc-server="$MPV_SOCK" "$url" >/dev/null 2>&1 &
+                        pid=$!
+                        ;;
+                    ffplay)
+                        local vol_arg="$volume"
+                        nohup ffplay -nodisp -volume "$vol_arg" "$url" >/dev/null 2>&1 &
+                        pid=$!
+                        ;;
+                    *)
+                        nohup "$player" "$url" >/dev/null 2>&1 &
+                        pid=$!
+                        ;;
+                esac
+
+                # Quick check that fallback is alive
+                sleep 2
+                if ! kill -0 "$pid" 2>/dev/null; then
+                    printf '{"error": "Both primary and fallback streams failed for genre: %s"}\n' "$(json_escape "$genre")"
+                    return 1
+                fi
+            else
+                printf '{"error": "Stream failed and no other stations available for genre: %s"}\n' "$(json_escape "$genre")"
+                return 1
+            fi
+        fi
+    fi
 
     # Save PID and start watchdog to kill player when terminal closes
     echo "$pid" > "$PID_FILE"
@@ -1185,6 +1326,7 @@ except ImportError:
     sources = {}
     current_genre = None
     current_item = {}
+    in_stations = False
     for line in text.split('\n'):
         stripped = line.strip()
         if not stripped or stripped.startswith('#'):
@@ -1192,26 +1334,30 @@ except ImportError:
         indent = len(line) - len(line.lstrip())
         if indent == 0 and stripped.endswith(':'):
             if current_item and current_genre:
-                sources.setdefault(current_genre, []).append(current_item)
+                sources.setdefault(current_genre, {}).setdefault('stations', []).append(current_item)
                 current_item = {}
             current_genre = stripped[:-1]
-            sources[current_genre] = []
-        elif indent == 2 and stripped.startswith('- name:'):
+            sources[current_genre] = {'stations': []}
+            in_stations = False
+        elif indent == 2 and stripped.startswith('stations:'):
+            in_stations = True
+        elif in_stations and indent == 4 and stripped.startswith('- name:'):
             if current_item and current_genre:
-                sources[current_genre].append(current_item)
+                sources[current_genre]['stations'].append(current_item)
             current_item = {'name': stripped.split(':', 1)[1].strip()}
-        elif indent == 4 and stripped.startswith('url:'):
+        elif in_stations and indent == 6 and stripped.startswith('url:'):
             current_item['url'] = stripped.split(': ', 1)[1].strip()
-        elif indent == 4 and stripped.startswith('description:'):
+        elif in_stations and indent == 6 and stripped.startswith('description:'):
             current_item['description'] = stripped.split(': ', 1)[1].strip()
     if current_item and current_genre:
-        sources.setdefault(current_genre, []).append(current_item)
+        sources.setdefault(current_genre, {}).setdefault('stations', []).append(current_item)
 
 with open(prefs_file) as f:
     prefs = json.load(f)
 
 url_to_name = {}
-for genre, stations in sources.items():
+for genre, genre_data in sources.items():
+    stations = genre_data.get('stations', []) if isinstance(genre_data, dict) else genre_data
     for s in stations:
         url_to_name[s.get('url','')] = s.get('name','')
 

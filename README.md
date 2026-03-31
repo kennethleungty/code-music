@@ -81,12 +81,12 @@ The plugin includes a resident AI DJ (DJ Ken) that picks the right music for you
 
 | Genre | Vibe | Great for | Stations |
 |-------|------|-----------|----------|
-| **lofi** | Chill downtempo beats, mellow vibes | Focused coding, debugging, writing tests | 2 |
+| **lofi** | Chill downtempo beats, mellow vibes | Focused coding, debugging, writing tests | 3 |
 | **jazz** | Smooth jazz, bossa nova, instrumental | Building features, refactoring | 4 |
-| **classical** | Orchestral, chamber music, deep focus | Code review, reading, research | 4 |
-| **ambient** | Atmospheric drones, space music | Brainstorming, design, creative work | 5 |
+| **classical** | Orchestral, chamber music, deep focus | Code review, reading, research | 5 |
+| **ambient** | Atmospheric drones, space music | Brainstorming, design, creative work | 6 |
 | **electronic** | Electronic, trance, IDM, dubstep, trip-hop | Shipping sprints, high-energy sessions | 6 |
-| **synthwave** | Retro-futuristic, 80s-inspired | Late night coding, nostalgic vibes | 4 |
+| **synthwave** | Retro-futuristic, 80s-inspired | Late night coding, nostalgic vibes | 3 |
 | **lounge** | Cinematic, spy-movie elegance | Demos, presentations, smooth backdrop | 2 |
 | **indie** | Indie pop, folk, dream pop | Creative writing, docs, warm sessions | 4 |
 
@@ -96,9 +96,9 @@ Each genre has multiple stations. Use `/next` to cycle through them.
 
 | Platform | How it plays |
 |----------|-------------|
-| **macOS** | mpv (via Homebrew) or built-in afplay |
-| **Linux** | mpv (via apt, dnf, pacman, etc.) |
-| **WSL2** | mpv inside WSL (with WSLg audio) or Windows-side mpv.exe |
+| **macOS** | mpv or ffplay (via Homebrew) or built-in afplay |
+| **Linux** | mpv or ffplay (via apt, dnf, pacman, etc.) |
+| **WSL2** | mpv/ffplay inside WSL (with WSLg audio) or Windows-side mpv.exe |
 | **Windows** | mpv (via winget, scoop, or chocolatey) |
 
 The plugin auto-detects your platform and available audio players. If nothing is installed, it offers to set one up for you.
@@ -155,14 +155,14 @@ Your settings are saved automatically and persist locally across sessions:
 <details>
 <summary><strong>Radio Stations</strong></summary>
 
-All streams are free, ad-free, and require no account.
+All streams are free, ad-free, and require no account. The station library is a mix of curated SomaFM radio streams and 24/7 YouTube livestreams.
 
-- **Lofi** — Nightwave Plaza, Groove Salad
-- **Jazz** — SomaFM Fluid, Bossa Beyond, FIP Jazz, WDCB Jazz
-- **Classical** — All Classical Portland, WWFM, France Musique, Iowa Public Radio
-- **Ambient** — SomaFM Drone Zone, Deep Space One, Mission Control, Dark Zone, Stereoscenic Ambient
-- **Electronic** — Beat Blender, SomaFM The Trip, Cliqhop IDM, Dub Step Beyond, Suburbs of Goa, Groove Salad Classic
-- **Synthwave** — SomaFM Synphaera, Vaporwaves, DEF CON Radio, Space Station Soma
+- **Lofi** — Lofi Girl, Chillhop Music, Groove Salad
+- **Jazz** — Coffee Shop Radio, SomaFM Fluid, Bossa Beyond, WDCB Jazz
+- **Classical** — Classical Radio, All Classical Portland, WWFM, France Musique, IPR Classical
+- **Ambient** — Relaxing Ambient, SomaFM Drone Zone, Deep Space One, Mission Control, Dark Zone, Stereoscenic Ambient
+- **Electronic** — Beat Blender, The Trip, Cliqhop IDM, Dub Step Beyond, Suburbs of Goa, Groove Salad Classic
+- **Synthwave** — Synthwave Radio, Nightwave Plaza, SomaFM Synphaera
 - **Lounge** — SomaFM Secret Agent, Illinois Street Lounge
 - **Indie** — SomaFM Lush, Indie Pop Rocks, Folk Forward, BAGeL Radio
 

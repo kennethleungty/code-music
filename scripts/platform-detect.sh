@@ -133,6 +133,12 @@ detect_platform() {
         fi
     fi
 
+    # Detect yt-dlp (needed for YouTube stream support)
+    local has_ytdlp="false"
+    if command -v yt-dlp &>/dev/null; then
+        has_ytdlp="true"
+    fi
+
     cat <<EOF
 {
   "os": "$os",
@@ -142,7 +148,8 @@ detect_platform() {
   "pkg_manager": "$pkg_manager",
   "audio_backend": "$audio_backend",
   "audio_ready": $audio_ready,
-  "available_players": "$players"
+  "available_players": "$players",
+  "has_ytdlp": $has_ytdlp
 }
 EOF
 }

@@ -27,8 +27,28 @@ if [ -f "$STATE_FILE" ]; then
     fi
 fi
 
-# Also kill any mpv/ffplay started by the controller (belt and suspenders)
-pkill -f "mpv.*somafm\|mpv.*fallback\|ffplay.*somafm\|ffplay.*fallback" 2>/dev/null || true
+# Also kill any mpv/ffplay that might have been started by the controller (belt and suspenders)
+# Match broadly — any mpv/ffplay with --no-video or -nodisp (our launch flags)
+pkill -f "mpv --no-video.*--really-quiet" 2>/dev/null || true
+pkill -f "ffplay -nodisp" 2>/dev/null || true
+
+# Kill the watchdog process too
+WATCHDOG_PID_FILE="$DATA_DIR/watchdog.pid"
+if [ -f "$WATCHDOG_PID_FILE" ]; then
+    kill "$(cat "$WATCHDOG_PID_FILE")" 2>/dev/null || true
+    rm -f "$WATCHDOG_PID_FILE"
+fi
+
+# Clean up state
+if [ -f "$STATE_FILE" ]; then
+    python3 -c "
+import json, sys
+with open(sys.argv[1]) as f: d = json.load(f)
+d['status'] = 'stopped'
+d['pid'] = ''
+with open(sys.argv[1], 'w') as f: json.dump(d, f, indent=2)
+" "$STATE_FILE" 2>/dev/null || true
+fi
 
 # SessionEnd hooks don't support hookSpecificOutput — output empty JSON
 printf '{}\n'
