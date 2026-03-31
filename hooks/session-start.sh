@@ -227,9 +227,15 @@ if [ "$AUDIO_WORKING" = "False" ]; then
 fi
 
 # ---- Load preferences & attempt autoplay ----
-PREFS=$("$CONTROLLER" load-prefs 2>/dev/null || echo "genre=ambient volume=30 autoplay=false player=auto")
+PREFS=$("$CONTROLLER" load-prefs 2>/dev/null || echo "genre=lofi volume=30 autoplay=false player=auto")
 AUTOPLAY=$(echo "$PREFS" | grep -o 'autoplay=[^ ]*' | cut -d= -f2)
 GENRE=$(echo "$PREFS" | grep -o 'genre=[^ ]*' | cut -d= -f2)
+
+# Validate genre against known values to prevent injection via tampered prefs
+VALID_GENRES="lofi jazz classical ambient electronic synthwave lounge indie"
+if ! echo "$VALID_GENRES" | grep -qw "$GENRE" 2>/dev/null; then
+    GENRE="lofi"
+fi
 
 MUSIC_STATUS="no_player"
 STATION=""

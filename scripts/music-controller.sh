@@ -68,22 +68,30 @@ json_escape() {
 
 yaml_query() {
     local query="$1"
+    shift
+    # Remaining args are key=value pairs passed as env vars to Python
+    # This avoids interpolating user data into Python code (injection risk)
     if ! command -v python3 &>/dev/null; then
         echo ""
         return 1
     fi
-    python3 -c "
-import sys
+    local env_args=()
+    env_args+=("_YQ_STATIONS_FILE=$STATIONS_FILE")
+    while [ $# -gt 0 ]; do
+        env_args+=("$1")
+        shift
+    done
+    env "${env_args[@]}" python3 -c "
+import os, sys
+_stations_file = os.environ['_YQ_STATIONS_FILE']
 try:
     import yaml
-    with open('$STATIONS_FILE') as f:
+    with open(_stations_file) as f:
         data = yaml.safe_load(f)
 except ImportError:
-    with open('$STATIONS_FILE') as f:
+    with open(_stations_file) as f:
         text = f.read()
     # Minimal YAML subset parser for our structure
-    # Format: genre: \n  stations: \n    - name: X \n      url: Y \n      description: ... \n      tags: [...]
-    # Normalizes to same shape as yaml.safe_load: {genre: {stations: [...]}}
     data = {}
     current_genre = None
     current_item = {}
@@ -223,15 +231,17 @@ is_youtube_url() {
 
 install_ytdlp() {
     # Auto-install yt-dlp (needed for YouTube stream extraction via mpv)
+    # Pinned version for reproducibility and supply-chain safety
+    local YTDLP_VERSION="2026.3.17"
     # Try pip methods first (no root needed), then package managers
     if command -v pipx &>/dev/null; then
-        pipx install yt-dlp &>/dev/null && return 0
+        pipx install "yt-dlp==$YTDLP_VERSION" &>/dev/null && return 0
     fi
     if command -v pip3 &>/dev/null; then
-        pip3 install --user yt-dlp &>/dev/null && return 0
+        pip3 install --user "yt-dlp==$YTDLP_VERSION" &>/dev/null && return 0
     fi
     if command -v pip &>/dev/null; then
-        pip install --user yt-dlp &>/dev/null && return 0
+        pip install --user "yt-dlp==$YTDLP_VERSION" &>/dev/null && return 0
     fi
     if command -v brew &>/dev/null; then
         brew install yt-dlp &>/dev/null && return 0
@@ -245,10 +255,10 @@ install_ytdlp() {
             sudo pacman -S --noconfirm yt-dlp &>/dev/null && return 0
         fi
     fi
-    # Final fallback: direct binary download
+    # Final fallback: direct binary download (pinned version)
     local bin_dir="$HOME/.local/bin"
     mkdir -p "$bin_dir"
-    if curl -sL "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" -o "$bin_dir/yt-dlp" 2>/dev/null; then
+    if curl -sL "https://github.com/yt-dlp/yt-dlp/releases/download/$YTDLP_VERSION/yt-dlp" -o "$bin_dir/yt-dlp" 2>/dev/null; then
         chmod +x "$bin_dir/yt-dlp"
         export PATH="$bin_dir:$PATH"
         return 0
@@ -491,11 +501,11 @@ get_stream_url() {
     fi
     yaml_query "
 import random
-genre_data = data.get('$genre', {})
+genre_data = data.get(os.environ.get('_YQ_GENRE', ''), {})
 streams = genre_data.get('stations', genre_data) if isinstance(genre_data, dict) else genre_data
 if not isinstance(streams, list): streams = []
-prefer_http = '$prefer_http' == 'true'
-exclude_url = '$exclude_url'
+prefer_http = os.environ.get('_YQ_PREFER_HTTP', '') == 'true'
+exclude_url = os.environ.get('_YQ_EXCLUDE_URL', '')
 if streams:
     if prefer_http:
         http_streams = [s for s in streams if s['url'].startswith('http://')]
@@ -506,7 +516,7 @@ if streams:
     print(random.choice(streams)['url'])
 else:
     sys.exit(1)
-"
+" "_YQ_GENRE=$genre" "_YQ_PREFER_HTTP=$prefer_http" "_YQ_EXCLUDE_URL=$exclude_url"
     return $?
 }
 
@@ -518,16 +528,16 @@ get_stream_name() {
     fi
     local name
     name=$(yaml_query "
-genre_data = data.get('$genre', {})
+genre_data = data.get(os.environ.get('_YQ_GENRE', ''), {})
 streams = genre_data.get('stations', genre_data) if isinstance(genre_data, dict) else genre_data
 if not isinstance(streams, list): streams = []
 for s in streams:
-    if s['url'] == '$url':
+    if s['url'] == os.environ.get('_YQ_URL', ''):
         print(s['name'])
         break
 else:
     print('Unknown Station')
-")
+" "_YQ_GENRE=$genre" "_YQ_URL=$url")
     echo "${name:-Unknown Station}"
 }
 
@@ -542,11 +552,11 @@ get_stream_url_and_name() {
     fi
     yaml_query "
 import random
-genre_data = data.get('$genre', {})
+genre_data = data.get(os.environ.get('_YQ_GENRE', ''), {})
 streams = genre_data.get('stations', genre_data) if isinstance(genre_data, dict) else genre_data
 if not isinstance(streams, list): streams = []
-prefer_http = '$prefer_http' == 'true'
-exclude_url = '$exclude_url'
+prefer_http = os.environ.get('_YQ_PREFER_HTTP', '') == 'true'
+exclude_url = os.environ.get('_YQ_EXCLUDE_URL', '')
 if streams:
     if prefer_http:
         http_streams = [s for s in streams if s['url'].startswith('http://')]
@@ -558,7 +568,7 @@ if streams:
     print(choice['url'] + '|' + choice.get('name', 'Unknown Station'))
 else:
     sys.exit(1)
-"
+" "_YQ_GENRE=$genre" "_YQ_PREFER_HTTP=$prefer_http" "_YQ_EXCLUDE_URL=$exclude_url"
     return $?
 }
 
@@ -586,7 +596,7 @@ find_station_by_name() {
     local search="$1"
     [ ! -f "$STATIONS_FILE" ] && return 1
     yaml_query "
-search = '''$search'''.lower()
+search = os.environ.get('_YQ_SEARCH', '').lower()
 for genre, genre_data in data.items():
     streams = genre_data.get('stations', genre_data) if isinstance(genre_data, dict) else genre_data
     if not isinstance(streams, list): streams = []
@@ -595,7 +605,7 @@ for genre, genre_data in data.items():
             print(genre + '|' + s['url'] + '|' + s['name'])
             sys.exit(0)
 sys.exit(1)
-"
+" "_YQ_SEARCH=$search"
     return $?
 }
 
@@ -806,16 +816,18 @@ do_play() {
         powershell.exe)
             # WSL/Windows: PowerShell MediaPlayer as last resort
             # Note: PowerShell MediaPlayer supports URLs and local files
+            # URL and volume are passed via environment variables to avoid
+            # PowerShell injection from malicious URLs
             local win_url="$url"
             if [ "$source" = "local" ]; then
                 win_url=$(wslpath -w "$url" 2>/dev/null || echo "$url")
             fi
             if [ "$source" = "local" ]; then
-                nohup powershell.exe -NoProfile -Command "
+                nohup env _CM_URL="$win_url" _CM_VOL="$volume" powershell.exe -NoProfile -Command "
                     Add-Type -AssemblyName PresentationCore
                     \$p = New-Object System.Windows.Media.MediaPlayer
-                    \$p.Volume = $volume / 100
-                    \$p.Open([Uri]'$win_url')
+                    \$p.Volume = [int]\$env:_CM_VOL / 100
+                    \$p.Open([Uri]\$env:_CM_URL)
                     \$p.Play()
                     Register-ObjectEvent \$p MediaEnded -Action {
                         \$p.Position = [TimeSpan]::Zero
@@ -824,11 +836,11 @@ do_play() {
                     while (\$true) { Start-Sleep -Seconds 60 }
                 " >/dev/null 2>&1 &
             else
-                nohup powershell.exe -NoProfile -Command "
+                nohup env _CM_URL="$win_url" _CM_VOL="$volume" powershell.exe -NoProfile -Command "
                     Add-Type -AssemblyName PresentationCore
                     \$p = New-Object System.Windows.Media.MediaPlayer
-                    \$p.Volume = $volume / 100
-                    \$p.Open([Uri]'$win_url')
+                    \$p.Volume = [int]\$env:_CM_VOL / 100
+                    \$p.Open([Uri]\$env:_CM_URL)
                     \$p.Play()
                     while (\$true) { Start-Sleep -Seconds 60 }
                 " >/dev/null 2>&1 &
@@ -1438,10 +1450,10 @@ fade_and_chime() {
             powershell.exe)
                 local win_path
                 win_path=$(wslpath -w "$chime_file" 2>/dev/null || echo "$chime_file")
-                powershell.exe -NoProfile -Command "
+                env _CM_URL="$win_path" powershell.exe -NoProfile -Command "
                     Add-Type -AssemblyName PresentationCore
                     \$p = New-Object System.Windows.Media.MediaPlayer
-                    \$p.Open([Uri]'$win_path')
+                    \$p.Open([Uri]\$env:_CM_URL)
                     \$p.Play()
                     Start-Sleep -Seconds 2
                 " 2>/dev/null ;;
