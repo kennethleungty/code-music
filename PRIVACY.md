@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**code-music** — background music for your coding sessions, right in your terminal.
+**claude-music** — background music for your coding sessions, right in your terminal.
 
 Last updated: 2026-03-25
 
@@ -10,7 +10,7 @@ This plugin does not collect, transmit, or store any personal data. Everything s
 
 ## What the plugin stores locally
 
-The plugin saves a small amount of state to `~/.code-music/` (or `$CLAUDE_PLUGIN_DATA`) on your local filesystem:
+The plugin saves a small amount of state to `~/.claude-music/` (or `$CLAUDE_PLUGIN_DATA`) on your local filesystem:
 
 - **preferences.json** — your chosen genre, volume level, autoplay setting, preferred audio player, and favorite stations per genre
 - **state.json** — current playback state (status, genre, stream URL, player process ID, session start time, station count)
@@ -39,13 +39,13 @@ During a session, the plugin injects context into Claude Code via hooks (e.g. pl
 
 ## Data deletion
 
-All plugin data is stored in `~/.code-music/`. To remove it completely:
+All plugin data is stored in `~/.claude-music/`. To remove it completely:
 
 ```bash
-rm -rf ~/.code-music
+rm -rf ~/.claude-music
 ```
 
-Uninstalling the plugin via `/plugin uninstall code-music` removes the plugin files. The data directory may persist and can be removed manually as above.
+Uninstalling the plugin via `/plugin uninstall claude-music` removes the plugin files. The data directory may persist and can be removed manually as above.
 
 ## Changes to this policy
 
@@ -53,4 +53,4 @@ Updates to this policy will be reflected in this file and tracked in the reposit
 
 ## Contact
 
-For questions or concerns, open an issue at [github.com/kennethleungty/code-music](https://github.com/kennethleungty/code-music/issues).
+For questions or concerns, open an issue at [github.com/kennethleungty/claude-music](https://github.com/kennethleungty/claude-music/issues).
