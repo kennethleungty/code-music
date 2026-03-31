@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" alt="Claude Music" width="350">
+  <img src="assets/logo-2.png" alt="Claude Music" width="350">
 </p>
 
 <p align="center">
