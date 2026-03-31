@@ -1,5 +1,11 @@
 <p align="center">
-  <img src="assets/logo.png" alt="Code Music" width="350">
+  <img src="assets/logo.png" alt="Claude Music" width="350">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows%20%7C%20WSL2-blue" alt="Platform">
+  <img src="https://img.shields.io/badge/Claude%20Code-plugin-blueviolet" alt="Claude Code">
 </p>
 
 <h2 align="center">Music in your Claude Code Sessions</h2>
@@ -9,7 +15,7 @@ Enjoy great music and vibes while Claude Code does the heavy lifting. Lofi, jazz
 No setup, no sign ups, no accounts. Just install the plugin and start listening.
 
 <!-- <p align="center">
-  <img src="assets/demo.gif" alt="code-music demo" width="600">
+  <img src="assets/demo.gif" alt="claude-music demo" width="600">
 </p> -->
 
 ## Quick Start
@@ -71,13 +77,13 @@ Each genre has multiple stations. Use `/next` to cycle through them.
 Register the marketplace first:
 
 ```bash
-/plugin marketplace add kennethleungty/code-music-marketplace
+/plugin marketplace add kennethleungty/claude-music-marketplace
 ```
 
 Then install the plugin:
 
 ```bash
-/plugin install code-music@code-music-marketplace
+/plugin install claude-music@claude-music-marketplace
 ```
 
 ### Verify Installation
