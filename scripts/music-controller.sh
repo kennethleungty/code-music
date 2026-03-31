@@ -849,70 +849,7 @@ do_play() {
             ;;
     esac
 
-    # Health check: verify the player is still alive after a brief startup window.
-    # If the stream fails, auto-retry with a different random station in the same genre.
-    local used_fallback=false
-    if [ "$source" = "stream" ]; then
-        # Give the player a moment to start
-        # Note: for non-mpv players, YouTube URLs are already extracted via yt-dlp
-        # so the delay is mainly for stream connection, not extraction
-        local health_delay=3
-        if is_youtube_url "$url" && { [ "$player" = "mpv" ] || [ "$player" = "mpv.exe" ]; }; then
-            health_delay=8  # mpv does its own yt-dlp extraction
-        fi
-        sleep "$health_delay"
-        if ! kill -0 "$pid" 2>/dev/null; then
-            # Player died — try another random station in the same genre (excluding the failed URL)
-            local retry_meta
-            retry_meta=$(get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || echo "")
-            if [ -n "$retry_meta" ]; then
-                url=$(echo "$retry_meta" | cut -d'|' -f1)
-                stream_name=$(echo "$retry_meta" | cut -d'|' -f2)
-                used_fallback=true
-
-                # Extract direct URL for YouTube streams on non-mpv players
-                if is_youtube_url "$url" && [ "$player" != "mpv" ] && [ "$player" != "mpv.exe" ]; then
-                    if command -v yt-dlp &>/dev/null; then
-                        local retry_direct_url
-                        retry_direct_url=$(yt-dlp --no-warnings -f "bestaudio[ext=m4a]/bestaudio" --get-url "$url" 2>/dev/null || echo "")
-                        if [ -n "$retry_direct_url" ]; then
-                            url="$retry_direct_url"
-                        fi
-                    fi
-                fi
-
-                # Re-launch player with fallback URL
-                case "$player" in
-                    mpv)
-                        local vol_arg="$volume"
-                        nohup mpv --no-video --really-quiet --volume="$vol_arg" --input-ipc-server="$MPV_SOCK" "$url" >/dev/null 2>&1 &
-                        pid=$!
-                        ;;
-                    ffplay)
-                        local vol_arg="$volume"
-                        nohup ffplay -nodisp -volume "$vol_arg" "$url" >/dev/null 2>&1 &
-                        pid=$!
-                        ;;
-                    *)
-                        nohup "$player" "$url" >/dev/null 2>&1 &
-                        pid=$!
-                        ;;
-                esac
-
-                # Quick check that fallback is alive
-                sleep 2
-                if ! kill -0 "$pid" 2>/dev/null; then
-                    printf '{"error": "Both primary and fallback streams failed for genre: %s"}\n' "$(json_escape "$genre")"
-                    return 1
-                fi
-            else
-                printf '{"error": "Stream failed and no other stations available for genre: %s"}\n' "$(json_escape "$genre")"
-                return 1
-            fi
-        fi
-    fi
-
-    # Save PID and start watchdog to kill player when terminal closes
+    # Save PID, start watchdog, and return immediately — no blocking health check.
     echo "$pid" > "$PID_FILE"
     start_watchdog "$pid"
     save_state "playing" "$genre" "$url" "$player" "$pid"
@@ -928,6 +865,82 @@ do_play() {
     printf '{"status": "playing", "genre": "%s", "genre_reason": "%s", "station": "%s", "source": "%s", "player": "%s"%s}\n' \
         "$(json_escape "$genre")" "$(json_escape "$genre_reason")" "$(json_escape "$stream_name")" \
         "$(json_escape "$source")" "$(json_escape "$player")" "$takeover_field"
+
+    # Quick health check + background retry: sleep 1s to catch immediate
+    # crashes (bad URL, player error), then return. If the player dies after
+    # that, a background process auto-retries with a different station.
+    if [ "$source" = "stream" ]; then
+        sleep 1
+        if ! kill -0 "$pid" 2>/dev/null; then
+            # Immediate failure — try to recover before returning
+            local retry_meta
+            retry_meta=$(get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || echo "")
+            if [ -n "$retry_meta" ]; then
+                url=$(echo "$retry_meta" | cut -d'|' -f1)
+                stream_name=$(echo "$retry_meta" | cut -d'|' -f2)
+                if is_youtube_url "$url" && [ "$player" != "mpv" ] && [ "$player" != "mpv.exe" ]; then
+                    if command -v yt-dlp &>/dev/null; then
+                        local direct
+                        direct=$(yt-dlp --no-warnings -f "bestaudio[ext=m4a]/bestaudio" --get-url "$url" 2>/dev/null || echo "")
+                        [ -n "$direct" ] && url="$direct"
+                    fi
+                fi
+                case "$player" in
+                    mpv)    nohup mpv --no-video --really-quiet --volume="$volume" --input-ipc-server="$MPV_SOCK" "$url" >/dev/null 2>&1 & ;;
+                    ffplay) nohup ffplay -nodisp -volume "$volume" "$url" >/dev/null 2>&1 & ;;
+                    *)      nohup "$player" "$url" >/dev/null 2>&1 & ;;
+                esac
+                pid=$!
+                echo "$pid" > "$PID_FILE"
+                save_state "playing" "$genre" "$url" "$player" "$pid"
+            fi
+        fi
+        # Deferred health check for slower failures (e.g. stream drops after connect)
+        (
+            local health_delay=3
+            if is_youtube_url "$url" && { [ "$player" = "mpv" ] || [ "$player" = "mpv.exe" ]; }; then
+                health_delay=8
+            fi
+            sleep "$health_delay"
+            if ! kill -0 "$pid" 2>/dev/null; then
+                # Player died — try another station in the same genre
+                local retry_meta
+                retry_meta=$("$0" _get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || \
+                    get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || echo "")
+                if [ -n "$retry_meta" ]; then
+                    local retry_url retry_name
+                    retry_url=$(echo "$retry_meta" | cut -d'|' -f1)
+                    retry_name=$(echo "$retry_meta" | cut -d'|' -f2)
+
+                    # Extract direct URL for YouTube on non-mpv
+                    if is_youtube_url "$retry_url" && [ "$player" != "mpv" ] && [ "$player" != "mpv.exe" ]; then
+                        if command -v yt-dlp &>/dev/null; then
+                            local direct
+                            direct=$(yt-dlp --no-warnings -f "bestaudio[ext=m4a]/bestaudio" --get-url "$retry_url" 2>/dev/null || echo "")
+                            [ -n "$direct" ] && retry_url="$direct"
+                        fi
+                    fi
+
+                    # Re-launch player
+                    case "$player" in
+                        mpv)
+                            nohup mpv --no-video --really-quiet --volume="$volume" --input-ipc-server="$MPV_SOCK" "$retry_url" >/dev/null 2>&1 &
+                            ;;
+                        ffplay)
+                            nohup ffplay -nodisp -volume "$volume" "$retry_url" >/dev/null 2>&1 &
+                            ;;
+                        *)
+                            nohup "$player" "$retry_url" >/dev/null 2>&1 &
+                            ;;
+                    esac
+                    local new_pid=$!
+                    echo "$new_pid" > "$PID_FILE"
+                    save_state "playing" "$genre" "$retry_url" "$player" "$new_pid"
+                fi
+            fi
+        ) &>/dev/null &
+        disown $! 2>/dev/null || true
+    fi
 }
 
 do_stop() {
@@ -1000,6 +1013,16 @@ print(json.dumps(session))
     else
         echo "{\"status\": \"already_stopped\"}"
     fi
+}
+
+do_shuffle() {
+    # Pick a completely random genre, then let do_play pick a random station within it
+    local genres
+    genres=$(do_list_genres 2>/dev/null)
+    local genre
+    genre=$(echo "$genres" | shuf -n 1)
+    [ -z "$genre" ] && genre="lofi"
+    do_play "$genre"
 }
 
 do_next() {
@@ -1562,6 +1585,92 @@ do_pomodoro_stop() {
 }
 
 # ============================================================================
+# Easter egg: faaah sound effect
+# ============================================================================
+
+do_faaah() {
+    # Only trigger if music is currently playing
+    if ! is_playing; then
+        echo '{"triggered": false, "reason": "not_playing"}'
+        return 0
+    fi
+
+    local faaah_file="$ASSETS_DIR/faaah.mp3"
+    if [ ! -f "$faaah_file" ]; then
+        echo '{"triggered": false, "reason": "missing_file"}'
+        return 1
+    fi
+
+    local player
+    player=$(detect_player)
+    local pid
+    pid=$(get_pid)
+    local volume
+    volume=$(json_get "$PREFS_FILE" "volume" 2>/dev/null || echo "30")
+    [ -z "$volume" ] && volume="30"
+
+    # --- Fade out current music ---
+    if [ "$player" = "mpv" ] && [ -S "$MPV_SOCK" ] && command -v socat &>/dev/null; then
+        # Smooth fade via mpv IPC
+        for pct in 70 40 15 0; do
+            local vol=$(( volume * pct / 100 ))
+            echo "{\"command\":[\"set_property\",\"volume\",$vol]}" | socat - "$MPV_SOCK" 2>/dev/null || true
+            sleep 0.3
+        done
+        # Pause mpv (keeps stream connection alive)
+        echo '{"command":["set_property","pause",true]}' | socat - "$MPV_SOCK" 2>/dev/null || true
+    else
+        # For ffplay and others: send SIGSTOP to pause the process
+        kill -STOP "$pid" 2>/dev/null || true
+    fi
+
+    # --- Play the faaah ---
+    case "$player" in
+        mpv)        mpv --no-video --really-quiet --volume="$volume" "$faaah_file" 2>/dev/null ;;
+        ffplay)     ffplay -nodisp -autoexit -volume "$volume" "$faaah_file" 2>/dev/null ;;
+        afplay)
+            local vol_float
+            vol_float=$(normalize_volume "$volume" "afplay")
+            afplay -v "$vol_float" "$faaah_file" 2>/dev/null ;;
+        play)
+            local vol_float
+            vol_float=$(normalize_volume "$volume" "play")
+            play -v "$vol_float" "$faaah_file" 2>/dev/null ;;
+        mpv.exe)
+            local win_path
+            win_path=$(wslpath -w "$faaah_file" 2>/dev/null || echo "$faaah_file")
+            mpv.exe --no-video --really-quiet --volume="$volume" "$win_path" 2>/dev/null ;;
+        powershell.exe)
+            local win_path
+            win_path=$(wslpath -w "$faaah_file" 2>/dev/null || echo "$faaah_file")
+            env _CM_URL="$win_path" powershell.exe -NoProfile -Command "
+                Add-Type -AssemblyName PresentationCore
+                \$p = New-Object System.Windows.Media.MediaPlayer
+                \$p.Open([Uri]\$env:_CM_URL)
+                \$p.Play()
+                Start-Sleep -Seconds 3
+            " 2>/dev/null ;;
+    esac
+
+    # --- Fade music back in ---
+    if [ "$player" = "mpv" ] && [ -S "$MPV_SOCK" ] && command -v socat &>/dev/null; then
+        # Unpause and fade back in
+        echo '{"command":["set_property","volume",0]}' | socat - "$MPV_SOCK" 2>/dev/null || true
+        echo '{"command":["set_property","pause",false]}' | socat - "$MPV_SOCK" 2>/dev/null || true
+        for pct in 15 40 70 100; do
+            local vol=$(( volume * pct / 100 ))
+            echo "{\"command\":[\"set_property\",\"volume\",$vol]}" | socat - "$MPV_SOCK" 2>/dev/null || true
+            sleep 0.3
+        done
+    else
+        # Resume ffplay/others from SIGSTOP
+        kill -CONT "$pid" 2>/dev/null || true
+    fi
+
+    echo '{"triggered": true}'
+}
+
+# ============================================================================
 # Main dispatch
 # ============================================================================
 
@@ -1582,6 +1691,8 @@ case "${1:-help}" in
     pomodoro)           do_pomodoro "${2:-25}" "${3:-}" ;;
     pomodoro-status)    do_pomodoro_status ;;
     pomodoro-stop)      do_pomodoro_stop ;;
+    shuffle)            acquire_lock; do_shuffle ;;
+    faaah)              do_faaah ;;
     load-stats)         do_load_stats ;;
     help|*)
         cat <<'USAGE'
@@ -1606,6 +1717,7 @@ Commands:
   full-stats             Session status + lifetime stats combined
   full-prefs             Prefs with station names resolved
   load-stats             Show lifetime listening stats
+  shuffle                Pick a random genre and station
   list                   List available genres
   list-genres            Alias for list
 USAGE

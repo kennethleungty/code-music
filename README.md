@@ -28,6 +28,7 @@ No setup, no sign ups, no accounts. Just install the plugin and start listening.
 /stop                # Stop the music
 /volume up           # Nudge volume up (or down, or set 0-100)
 /mute                # Mute without stopping the stream
+/shuffle             # Random genre, random station — surprise me
 /status              # See what's playing right now
 ```
 
@@ -118,6 +119,7 @@ The plugin auto-detects your platform and available audio players. If nothing is
 | `/mood <feeling>` | Tell the DJ how you're feeling and it picks the right music |
 | `/focus [min] [genre]` | Pomodoro timer with music (default 25 min) |
 | `/pomodoro` | Same as `/focus` |
+| `/shuffle` | Pick a completely random genre and station |
 | `/volume [0-100 \| up \| down]` | Set volume, nudge up/down by 10, or show current |
 | `/status` | See what's playing right now |
 | `/list` | List available genres and their stations |
@@ -175,6 +177,20 @@ Want to add your own stations? Use `/sources` to manage streams interactively.
 Know a great stream that belongs here? We'd love your help growing the station library. Musicians, DJs, radio nerds, and anyone with good taste — open an issue or PR with your recommendation. Include the stream URL, a short description, and which genre it fits best.
 
 All streams should be free, ad-free, and publicly accessible.
+
+## For Music Producers & Composers
+
+Make music that's perfect for coding? We're always looking for new streams to feature.
+
+Thousands of developers listen to music through this plugin while building with Claude Code. If you produce lofi, ambient, jazz, electronic, or anything that pairs well with deep focus — your music could be the soundtrack to real work getting shipped.
+
+**To get featured**, [open an issue](../../issues/new) with:
+
+- A link to your stream (YouTube livestream, Icecast/Shoutcast URL, etc.)
+- A short description of your sound
+- Which genre category fits best (or suggest a new one)
+
+We'll listen, and if it's a good fit, add it to the station library for everyone.
 
 ## Coming Soon
 
