@@ -6,11 +6,11 @@ model: haiku
 effort: low
 ---
 
-This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
+This skill is part of the claude-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Help
 
-Show the user a quick guide to code-music.
+Show the user a quick guide to claude-music.
 
 ## Instructions
 
@@ -18,7 +18,7 @@ Print the following guide directly (do not run any commands):
 
 ---
 
-**code-music** — background music for your coding sessions
+**claude-music** — background music for your coding sessions
 
 **Playback**
 - `/play [genre]` — Start music (optionally pick a genre)

@@ -7,7 +7,7 @@ effort: low
 allowed-tools: Bash
 ---
 
-This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
+This skill is part of the claude-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Stop Music
 
@@ -20,7 +20,7 @@ Run `"${CLAUDE_PLUGIN_ROOT}/scripts/music-controller.sh" stop`.
 
 Output format — use this exact markdown structure:
 
-**♪ Code Music · Session Recap**
+**♪ Claude Music · Session Recap**
 
 **This session** — {genre} for {duration_minutes} min, {station_count} station(s)
 
