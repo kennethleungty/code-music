@@ -7,7 +7,7 @@ effort: low
 allowed-tools: Bash, Read
 ---
 
-This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
+This skill is part of the claude-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # List Genres
 
