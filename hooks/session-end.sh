@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SessionEnd hook for code-music plugin
+# SessionEnd hook for claude-music plugin
 # Stops music playback when the session ends (including Ctrl+C)
 
 # Never surface errors — just clean up and exit
@@ -9,7 +9,7 @@ exec 2>/dev/null
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-DATA_DIR="$HOME/.code-music"
+DATA_DIR="$HOME/.claude-music"
 STATE_FILE="$DATA_DIR/state.json"
 POMODORO_PID_FILE="$DATA_DIR/pomodoro.pid"
 

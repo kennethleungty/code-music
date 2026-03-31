@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# SessionStart hook for code-music plugin
+# SessionStart hook for claude-music plugin
 # Deterministic platform/audio check — no LLM calls, no installs
 # Injects platform state into session so Claude knows what to do
 
@@ -14,7 +14,7 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 CONTROLLER="$PLUGIN_ROOT/scripts/music-controller.sh"
 PLATFORM_DETECT="$PLUGIN_ROOT/scripts/platform-detect.sh"
 SETUP_AUDIO="$PLUGIN_ROOT/scripts/setup-audio.sh"
-DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.code-music}"
+DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude-music}"
 PREFS_FILE="$DATA_DIR/preferences.json"
 
 # ---- Set up status line (once) ----
@@ -176,7 +176,7 @@ if [ "$PLAYER" != "none" ]; then
 fi
 
 # ---- Build context message ----
-CONTEXT="Background music plugin (code-music) is active."
+CONTEXT="Background music plugin (claude-music) is active."
 CONTEXT="$CONTEXT Environment: os=$PLATFORM_OS wsl=$PLATFORM_WSL pkg=$PLATFORM_PKG audio=$AUDIO_METHOD($AUDIO_WORKING) players=[$PLATFORM_PLAYERS]."
 
 if [ -z "$MISSING" ]; then
