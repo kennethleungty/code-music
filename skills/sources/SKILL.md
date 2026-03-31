@@ -6,15 +6,15 @@ allowed-tools: Bash, Read, Edit, Write
 maxTurns: 8
 ---
 
-This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
+This skill is part of the claude-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Sources Manager
 
-Manage the music streams and genres available in the code-music plugin. This is a conversational editor — the user tells you what they want to change and you handle the YAML.
+Manage the music streams and genres available in the claude-music plugin. This is a conversational editor — the user tells you what they want to change and you handle the YAML.
 
 ## Critical Rules
 
-- You are editing the **code-music plugin's** stream configuration and NOTHING else.
+- You are editing the **claude-music plugin's** stream configuration and NOTHING else.
 - The ONLY file you may modify is: `${CLAUDE_PLUGIN_ROOT}/config/sources.yml`
 - NEVER edit, create, or modify any other file on the user's system.
 - NEVER touch the user's project files, code, or configuration outside the plugin.

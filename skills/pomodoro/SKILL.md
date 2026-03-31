@@ -7,7 +7,7 @@ effort: low
 allowed-tools: Bash
 ---
 
-This skill is part of the code-music plugin. Only invoke when the user explicitly uses the slash command.
+This skill is part of the claude-music plugin. Only invoke when the user explicitly uses the slash command.
 
 # Pomodoro (alias for /focus)
 
