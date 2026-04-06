@@ -91,8 +91,15 @@ except ImportError:
             elif indent == 4 and stripped.startswith('url:'):
                 current_item['url'] = stripped.split(': ', 1)[1].strip()
     if current_item and current_genre: data[current_genre].append(current_item)
+import re
+# Extract video ID from YouTube URLs (both short and resolved manifest URLs)
+def yt_id(u):
+    m = re.search(r'(?:v=|/vi?/)([a-zA-Z0-9_-]{11})', u or '')
+    return m.group(1) if m else None
+play_id = yt_id(url)
 for s in data.get(genre, []):
-    if s.get('url') == url:
+    su = s.get('url', '')
+    if su == url or (play_id and yt_id(su) == play_id):
         print(s['name']); break
 " "$SOURCES" "$GENRE" "$URL" 2>/dev/null)
             fi
