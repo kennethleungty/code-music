@@ -314,7 +314,7 @@ find_session_tty() {
     local tty=""
     while [ "$pid" -gt 1 ] 2>/dev/null; do
         tty=$(ps -o tty= -p "$pid" 2>/dev/null | tr -d ' ')
-        if [ -n "$tty" ] && [ "$tty" != "?" ]; then
+        if [ -n "$tty" ] && [ "$tty" != "?" ] && [ "$tty" != "??" ]; then
             echo "$tty"
             return 0
         fi
