@@ -8,11 +8,6 @@ lofi:
       url: https://www.youtube.com/watch?v=5yx6BWlEVcY
       description: Jazzy & lofi hip hop beats with a warm, coffee-shop feel. Mellow but groovy.
       tags: [calm, focus, warm, coffee-shop, productive]
-    - name: SomaFM - Groove Salad
-      url: http://ice2.somafm.com/groovesalad-128-mp3
-      description: A nicely chilled plate of ambient/downtempo beats and grooves. SomaFM's most popular channel — the quintessential coding music stream.
-      tags: [calm, focus, debugging, testing, devops, chill, coding]
-
 jazz:
   stations:
     - name: Coffee Shop Radio
@@ -49,6 +44,10 @@ classical:
 
 ambient:
   stations:
+    - name: SomaFM - Groove Salad
+      url: http://ice2.somafm.com/groovesalad-128-mp3
+      description: A nicely chilled plate of ambient/downtempo beats and grooves. SomaFM's most popular channel — the quintessential coding music stream.
+      tags: [calm, focus, debugging, testing, devops, chill, coding]
     - name: Relaxing Ambient
       url: https://www.youtube.com/watch?v=S_MOd40zlYU
       description: 24/7 ambient relaxation radio — calm atmospheric music. A reliable YouTube livestream for quiet background ambience.

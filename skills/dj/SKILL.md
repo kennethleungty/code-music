@@ -35,7 +35,7 @@ for genre, info in data.items():
         print(f'  - {s[\"name\"]}: {s.get(\"description\", \"\")}')
         print(f'    tags: {tags}')
     print()
-"
+" > /dev/null 2>&1
 ```
 
 Using the tags and descriptions, match the session context to the best genre. Consider:

@@ -408,19 +408,20 @@ acquire_lock() {
     ensure_data_dir
     exec 9>"$LOCK_FILE"
     if ! flock -n 9; then
-        # Another session is playing — auto-takeover instead of erroring
+        # Lock held by another process — check if a player is actually running
         local prev_genre=""
-        if [ -f "$STATE_FILE" ]; then
-            prev_genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "")
+        if is_playing; then
+            # Another session is actively playing — full takeover
+            if [ -f "$STATE_FILE" ]; then
+                prev_genre=$(json_get "$STATE_FILE" "genre" 2>/dev/null || echo "")
+            fi
+            kill_player
+            kill_orphaned_players
+            # Brief wait for lock release, then force-acquire
+            sleep 0.3
+            _TAKEOVER_PREV_GENRE="${prev_genre}"
         fi
-        # Stop the other session's player
-        kill_player
-        kill_orphaned_players
-        # Brief wait for lock release, then force-acquire
-        sleep 0.3
         flock -w 2 9 2>/dev/null || true
-        # Signal the takeover so the play command can include it in output
-        _TAKEOVER_PREV_GENRE="${prev_genre}"
     fi
 }
 
@@ -623,10 +624,13 @@ do_play() {
     esac
 
     # Check if the argument is a station name rather than a genre
-    if [ -n "$genre" ] && [ ! -f "$STATIONS_FILE" ] || [ -n "$genre" ]; then
-        local known_genres
-        known_genres=$(do_list_genres 2>/dev/null)
-        if ! echo "$known_genres" | grep -qx "$genre"; then
+    if [ -n "$genre" ]; then
+        # Fast genre check without spawning a subprocess
+        local is_known_genre=false
+        case "$genre" in
+            lofi|jazz|classical|ambient|electronic|synthwave|lounge|indie) is_known_genre=true ;;
+        esac
+        if [ "$is_known_genre" = false ]; then
             # Not a known genre — try matching as a station name
             local match
             match=$(find_station_by_name "$genre" 2>/dev/null || echo "")
@@ -651,9 +655,9 @@ do_play() {
     fi
     [ -z "$genre" ] && genre="lofi"
 
-    # Stop existing playback (tracked + orphaned)
+    # Stop existing playback (tracked player only — orphan cleanup already
+    # happens in acquire_lock on takeover, no need to repeat here)
     kill_player
-    kill_orphaned_players
 
     # Detect a usable player (mpv preferred, ffplay as fallback)
     local player
@@ -866,53 +870,19 @@ do_play() {
         "$(json_escape "$genre")" "$(json_escape "$genre_reason")" "$(json_escape "$stream_name")" \
         "$(json_escape "$source")" "$(json_escape "$player")" "$takeover_field"
 
-    # Quick health check + background retry: sleep 1s to catch immediate
-    # crashes (bad URL, player error), then return. If the player dies after
-    # that, a background process auto-retries with a different station.
+    # Background health check + auto-retry: returns immediately, checks
+    # player health asynchronously to avoid blocking the caller.
     if [ "$source" = "stream" ]; then
-        sleep 1
-        if ! kill -0 "$pid" 2>/dev/null; then
-            # Immediate failure — try to recover before returning
-            local retry_meta
-            retry_meta=$(get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || echo "")
-            if [ -n "$retry_meta" ]; then
-                url=$(echo "$retry_meta" | cut -d'|' -f1)
-                stream_name=$(echo "$retry_meta" | cut -d'|' -f2)
-                if is_youtube_url "$url" && [ "$player" != "mpv" ] && [ "$player" != "mpv.exe" ]; then
-                    if command -v yt-dlp &>/dev/null; then
-                        local direct
-                        direct=$(yt-dlp --no-warnings -f "bestaudio[ext=m4a]/bestaudio" --get-url "$url" 2>/dev/null || echo "")
-                        [ -n "$direct" ] && url="$direct"
-                    fi
-                fi
-                case "$player" in
-                    mpv)    nohup mpv --no-video --really-quiet --volume="$volume" --input-ipc-server="$MPV_SOCK" "$url" >/dev/null 2>&1 & ;;
-                    ffplay) nohup ffplay -nodisp -volume "$volume" "$url" >/dev/null 2>&1 & ;;
-                    *)      nohup "$player" "$url" >/dev/null 2>&1 & ;;
-                esac
-                pid=$!
-                echo "$pid" > "$PID_FILE"
-                save_state "playing" "$genre" "$url" "$player" "$pid"
-            fi
-        fi
-        # Deferred health check for slower failures (e.g. stream drops after connect)
         (
-            local health_delay=3
-            if is_youtube_url "$url" && { [ "$player" = "mpv" ] || [ "$player" = "mpv.exe" ]; }; then
-                health_delay=8
-            fi
-            sleep "$health_delay"
+            # Quick check: catch immediate crashes (bad URL, player error)
+            sleep 1
             if ! kill -0 "$pid" 2>/dev/null; then
-                # Player died — try another station in the same genre
                 local retry_meta
-                retry_meta=$("$0" _get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || \
-                    get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || echo "")
+                retry_meta=$(get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || echo "")
                 if [ -n "$retry_meta" ]; then
                     local retry_url retry_name
                     retry_url=$(echo "$retry_meta" | cut -d'|' -f1)
                     retry_name=$(echo "$retry_meta" | cut -d'|' -f2)
-
-                    # Extract direct URL for YouTube on non-mpv
                     if is_youtube_url "$retry_url" && [ "$player" != "mpv" ] && [ "$player" != "mpv.exe" ]; then
                         if command -v yt-dlp &>/dev/null; then
                             local direct
@@ -920,8 +890,38 @@ do_play() {
                             [ -n "$direct" ] && retry_url="$direct"
                         fi
                     fi
+                    case "$player" in
+                        mpv)    nohup mpv --no-video --really-quiet --volume="$volume" --input-ipc-server="$MPV_SOCK" "$retry_url" >/dev/null 2>&1 & ;;
+                        ffplay) nohup ffplay -nodisp -volume "$volume" "$retry_url" >/dev/null 2>&1 & ;;
+                        *)      nohup "$player" "$retry_url" >/dev/null 2>&1 & ;;
+                    esac
+                    pid=$!
+                    echo "$pid" > "$PID_FILE"
+                    save_state "playing" "$genre" "$retry_url" "$player" "$pid"
+                fi
+            fi
 
-                    # Re-launch player
+            # Deferred check: catch slower failures (e.g. stream drops after connect)
+            local health_delay=3
+            if is_youtube_url "$url" && { [ "$player" = "mpv" ] || [ "$player" = "mpv.exe" ]; }; then
+                health_delay=8
+            fi
+            sleep "$health_delay"
+            if ! kill -0 "$pid" 2>/dev/null; then
+                local retry_meta
+                retry_meta=$("$0" _get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || \
+                    get_stream_url_and_name "$genre" "$prefer_http" "$url" 2>/dev/null || echo "")
+                if [ -n "$retry_meta" ]; then
+                    local retry_url retry_name
+                    retry_url=$(echo "$retry_meta" | cut -d'|' -f1)
+                    retry_name=$(echo "$retry_meta" | cut -d'|' -f2)
+                    if is_youtube_url "$retry_url" && [ "$player" != "mpv" ] && [ "$player" != "mpv.exe" ]; then
+                        if command -v yt-dlp &>/dev/null; then
+                            local direct
+                            direct=$(yt-dlp --no-warnings -f "bestaudio[ext=m4a]/bestaudio" --get-url "$retry_url" 2>/dev/null || echo "")
+                            [ -n "$direct" ] && retry_url="$direct"
+                        fi
+                    fi
                     case "$player" in
                         mpv)
                             nohup mpv --no-video --really-quiet --volume="$volume" --input-ipc-server="$MPV_SOCK" "$retry_url" >/dev/null 2>&1 &
