@@ -1111,7 +1111,11 @@ for genre in data:
         echo "lofi"
         echo "jazz"
         echo "classical"
-        echo "lofi"
+        echo "ambient"
+        echo "electronic"
+        echo "synthwave"
+        echo "lounge"
+        echo "indie"
     fi
 }
 
@@ -1139,7 +1143,7 @@ do_reset_prefs() {
   "favorite_stations": {}
 }
 EOF
-    echo "{\"status\": \"reset\", \"message\": \"Preferences cleared. Genre default is now ambient.\"}"
+    echo "{\"status\": \"reset\", \"message\": \"Preferences cleared. Genre default is now lofi.\"}"
 }
 
 save_favorite_station() {

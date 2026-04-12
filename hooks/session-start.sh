@@ -59,7 +59,7 @@ mkdir -p "$DATA_DIR"
 if [ ! -f "$PREFS_FILE" ]; then
     cat > "$PREFS_FILE" <<'EOF'
 {
-  "genre": "ambient",
+  "genre": "lofi",
   "volume": "30",
   "autoplay": "false",
   "player": "auto"
